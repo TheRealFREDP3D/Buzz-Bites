@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Unit, UnitType } from '../types';
 import { UPGRADE_COST_INCREASE, UPGRADE_STAT_INCREASE } from '../constants';
@@ -49,8 +48,9 @@ export const UnitControls: React.FC<UnitControlsProps> = ({
 
           // Distinct styling for Gatherers
           const isGatherer = unit.type === UnitType.GATHERER;
-          const cardBaseColor = isGatherer ? 'bg-emerald-400 border-emerald-700' : 'bg-yellow-400 border-yellow-700';
-          const cardHoverColor = isGatherer ? 'hover:bg-emerald-300 active:bg-emerald-500' : 'hover:bg-yellow-300 active:bg-yellow-500';
+          // Changed to Cyan/Sky for better distinction as requested
+          const cardBaseColor = isGatherer ? 'bg-cyan-400 border-cyan-700' : 'bg-yellow-400 border-yellow-700';
+          const cardHoverColor = isGatherer ? 'hover:bg-cyan-300 active:bg-cyan-500' : 'hover:bg-yellow-300 active:bg-yellow-500';
           const cardSelectedColor = 'bg-blue-400 border-blue-700 border-b-4';
 
           return (

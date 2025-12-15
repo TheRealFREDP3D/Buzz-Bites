@@ -1,4 +1,3 @@
-
 import { Unit, UnitType, FoodItem } from './types';
 
 export const GAME_TICK_MS = 50; // Faster tick for smooth movement
@@ -7,7 +6,7 @@ export const BASE_HEALTH = 200;
 export const WINNING_SCORE = 100; // Legacy, kept for compatibility if needed, but using Base Health now
 export const INITIAL_TERRITORY = 50; // Legacy
 
-export const UPGRADE_STAT_INCREASE = 0.25; // 25% stat boost per level
+export const UPGRADE_STAT_INCREASE = 0.50; // 50% stat boost per level
 export const UPGRADE_COST_INCREASE = 1.5; // 50% cost increase per level
 export const GATHERER_CARRY_AMOUNT = 20;
 
@@ -26,7 +25,7 @@ export const BEE_UNITS: Record<UnitType, Unit> = {
     id: 'bee_worker',
     type: UnitType.WORKER,
     name: 'Pollen Puffer',
-    cost: 10,
+    cost: 5,
     baseUpgradeCost: 30,
     hp: 30,
     attack: 2,
@@ -41,7 +40,7 @@ export const BEE_UNITS: Record<UnitType, Unit> = {
     id: 'bee_gatherer',
     type: UnitType.GATHERER,
     name: 'Nectar Hauler',
-    cost: 50,
+    cost: 25,
     baseUpgradeCost: 150,
     hp: 60,
     attack: 0,
@@ -56,7 +55,7 @@ export const BEE_UNITS: Record<UnitType, Unit> = {
     id: 'bee_soldier',
     type: UnitType.SOLDIER,
     name: 'Stinger Striker',
-    cost: 75,
+    cost: 37,
     baseUpgradeCost: 200,
     hp: 120,
     attack: 15,
@@ -71,7 +70,7 @@ export const BEE_UNITS: Record<UnitType, Unit> = {
     id: 'bee_elite',
     type: UnitType.ELITE,
     name: 'Hornet Ace',
-    cost: 100,
+    cost: 50,
     baseUpgradeCost: 300,
     hp: 90,
     attack: 25,
@@ -86,7 +85,7 @@ export const BEE_UNITS: Record<UnitType, Unit> = {
     id: 'bee_special',
     type: UnitType.SPECIAL,
     name: 'Royal Jelly Jet',
-    cost: 150,
+    cost: 75,
     baseUpgradeCost: 400,
     hp: 300,
     attack: 40,
@@ -104,7 +103,7 @@ export const ANT_UNITS: Record<UnitType, Unit> = {
     id: 'ant_worker',
     type: UnitType.WORKER,
     name: 'Crumb Carrier',
-    cost: 15,
+    cost: 7,
     baseUpgradeCost: 100,
     hp: 30,
     attack: 2,
@@ -119,7 +118,7 @@ export const ANT_UNITS: Record<UnitType, Unit> = {
     id: 'ant_gatherer',
     type: UnitType.GATHERER,
     name: 'Sugar Scout',
-    cost: 40,
+    cost: 20,
     baseUpgradeCost: 150,
     hp: 70,
     attack: 0,
@@ -134,7 +133,7 @@ export const ANT_UNITS: Record<UnitType, Unit> = {
     id: 'ant_soldier',
     type: UnitType.SOLDIER,
     name: 'Mandible Mauler',
-    cost: 50,
+    cost: 25,
     baseUpgradeCost: 200,
     hp: 140,
     attack: 12,
@@ -149,7 +148,7 @@ export const ANT_UNITS: Record<UnitType, Unit> = {
     id: 'ant_elite',
     type: UnitType.ELITE,
     name: 'Drill Sergeant',
-    cost: 100,
+    cost: 50,
     baseUpgradeCost: 300,
     hp: 220,
     attack: 18,
@@ -164,7 +163,7 @@ export const ANT_UNITS: Record<UnitType, Unit> = {
     id: 'ant_special',
     type: UnitType.SPECIAL,
     name: 'Picnic Tank',
-    cost: 150,
+    cost: 75,
     baseUpgradeCost: 400,
     hp: 500,
     attack: 50,

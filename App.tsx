@@ -203,7 +203,21 @@ const App: React.FC = () => {
               }
 
               if (target && Math.abs(target.position - attacker.position) <= attacker.range) {
-                 target.currentHp -= attacker.attack;
+                 // --- DEFENSIVE STACKING BONUS ---
+                 // Count nearby allies of same type
+                 const nearbyAllies = unitsAfterDamage.filter(ally => 
+                    ally.instanceId !== target!.instanceId &&
+                    ally.faction === target!.faction &&
+                    ally.type === target!.type &&
+                    ally.lane === target!.lane &&
+                    Math.abs(ally.position - target!.position) < 3 // Within 3% position
+                 ).length;
+
+                 // Bonus: 10% damage reduction per ally, max 50%
+                 const reductionPercent = Math.min(nearbyAllies * 0.10, 0.50);
+                 const damageMultiplier = 1 - reductionPercent;
+
+                 target.currentHp -= (attacker.attack * damageMultiplier);
               }
            }
         });
@@ -567,8 +581,8 @@ const App: React.FC = () => {
          "{gameState.commentary}"
       </div>
 
-      {/* MAIN BATTLEFIELD CONTAINER */}
-      <div className="flex flex-row gap-2 h-[300px] mb-6">
+      {/* MAIN BATTLEFIELD CONTAINER - Increased height and reduced bottom margin */}
+      <div className="flex flex-row gap-2 h-[500px] mb-2">
         
         {/* LEFT: BEE HIVE + HEALTH */}
         <BaseHealth 
@@ -627,41 +641,74 @@ const App: React.FC = () => {
                     )}
 
                     {/* Units in this lane */}
-                    {gameState.units.filter(u => u.lane === laneIndex).map(unit => (
-                        <div
-                        key={unit.instanceId}
-                        className="absolute transition-all duration-75 ease-linear flex flex-col items-center justify-center w-12 h-12"
-                        style={{ 
-                            left: `${unit.position}%`, 
-                            transform: `translate(-50%, 0) scaleX(${unit.faction === Faction.BEES ? 1 : -1})`,
-                            zIndex: 10
-                        }}
-                        >
-                        {/* HP Bar */}
-                        <div className="w-full h-1 bg-gray-700 rounded-full mb-1 overflow-hidden" style={{ transform: 'scaleX(1)' }}> 
-                            <div 
-                                className={`h-full ${unit.faction === Faction.BEES ? 'bg-yellow-400' : 'bg-red-500'}`} 
-                                style={{ width: `${(unit.currentHp / unit.hp) * 100}%` }}
-                            ></div>
-                        </div>
+                    {(() => {
+                      const laneUnits = gameState.units.filter(u => u.lane === laneIndex);
+                      // Stable sort by position for rendering order
+                      laneUnits.sort((a, b) => a.position - b.position);
+
+                      return laneUnits.map((unit) => {
+                        // Logic to detect stacks of same type/faction
+                        const stackGroup = laneUnits.filter(u => 
+                          u.faction === unit.faction && 
+                          u.type === unit.type && 
+                          Math.abs(u.position - unit.position) < 3 // 3% proximity threshold
+                        );
+
+                        // Sort stack group by ID for stable offset assignment
+                        stackGroup.sort((a, b) => a.instanceId.localeCompare(b.instanceId));
+                        const stackIndex = stackGroup.findIndex(u => u.instanceId === unit.instanceId);
+                        const stackSize = stackGroup.length;
                         
-                        {/* Unit Emoji */}
-                        <div className="relative">
-                                <div className={`text-3xl filter drop-shadow-md ${unit.isAttacking ? 'animate-wiggle-fast' : 'animate-bounce-slow'}`}>
-                                    {unit.emoji}
-                                </div>
-                                {unit.isCarrying && (
-                                    <div className="absolute -top-2 -right-2 text-sm animate-bounce bg-white/80 rounded-full w-5 h-5 flex items-center justify-center border border-gray-400 shadow">
-                                        {gameState.centerFoodItem.emoji}
+                        // Vertical offset: Fan out alternating up/down
+                        const verticalOffset = stackIndex === 0 ? 0 : 
+                                               (stackIndex % 2 === 0 ? (stackIndex/2) * 6 : -((stackIndex+1)/2) * 6);
+
+                        return (
+                          <div
+                            key={unit.instanceId}
+                            className="absolute transition-all duration-75 ease-linear flex flex-col items-center justify-center w-9 h-9"
+                            style={{ 
+                              left: `${unit.position}%`, 
+                              transform: `translate(-50%, ${verticalOffset}px) scaleX(${unit.faction === Faction.BEES ? 1 : -1})`,
+                              zIndex: 20 + stackIndex // Ensure specific stacking order
+                            }}
+                          >
+                            {/* HP Bar */}
+                            <div className="w-full h-1 bg-gray-700 rounded-full mb-0.5 overflow-hidden" style={{ transform: 'scaleX(1)' }}> 
+                                <div 
+                                    className={`h-full ${unit.faction === Faction.BEES ? 'bg-yellow-400' : 'bg-red-500'}`} 
+                                    style={{ width: `${(unit.currentHp / unit.hp) * 100}%` }}
+                                ></div>
+                            </div>
+                            
+                            {/* Unit Emoji */}
+                            <div className="relative">
+                                    <div className={`text-2xl filter drop-shadow-md ${unit.isAttacking ? 'animate-wiggle-fast' : 'animate-bounce-slow'}`}>
+                                        {unit.emoji}
                                     </div>
-                                )}
-                        </div>
-                        
-                        {unit.isAttacking && (
-                            <div className="absolute -right-4 top-1/2 -translate-y-1/2 text-xl animate-ping">💥</div>
-                        )}
-                        </div>
-                    ))}
+                                    
+                                    {/* Carrying indicator */}
+                                    {unit.isCarrying && (
+                                        <div className="absolute -top-2 -right-2 text-xs animate-bounce bg-white/80 rounded-full w-4 h-4 flex items-center justify-center border border-gray-400 shadow">
+                                            {gameState.centerFoodItem.emoji}
+                                        </div>
+                                    )}
+
+                                    {/* Stack Count Badge - Only on the 'primary' unit of the stack */}
+                                    {stackIndex === 0 && stackSize > 1 && (
+                                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900/80 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full border border-white/30 z-30 shadow-sm backdrop-blur-[1px]">
+                                        x{stackSize}
+                                      </div>
+                                    )}
+                            </div>
+                            
+                            {unit.isAttacking && (
+                                <div className="absolute -right-3 top-1/2 -translate-y-1/2 text-lg animate-ping">💥</div>
+                            )}
+                          </div>
+                        );
+                      });
+                    })()}
 
                     {/* Hover Effects */}
                     {gameState.selectedUnit && (
@@ -701,7 +748,7 @@ const App: React.FC = () => {
       </div>
       {/* END MAIN BATTLEFIELD */}
 
-      {/* Controls */}
+      {/* Controls - Moved closer via parent container margin reduction */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2">
           <UnitControls 
