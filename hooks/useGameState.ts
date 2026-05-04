@@ -61,7 +61,7 @@ export function useGameState(): GameStateReturn {
     }, GAME_TICK_MS);
 
     return () => clearInterval(interval);
-  }, [gameState, gameState.gameActive]);
+  }, [gameState.gameActive]);
 
   // Game actions
   const spawnUnit = useCallback((faction: Faction, unitType: UnitType, lane: number) => {
@@ -90,10 +90,12 @@ export function useGameState(): GameStateReturn {
     }
 
     dispatch(GameStateActions.spawnUnit(faction, unitType, lane, gameState.unitLevels));
-    dispatch(GameStateActions.updateResources(
-      faction === Faction.BEES ? gameState.beeResources - unitStats.cost : gameState.beeResources,
-      faction === Faction.ANTS ? gameState.antResources - unitStats.cost : gameState.antResources
-    ));
+    
+    // Properly deduct resources for the spawning faction
+    const newBeeResources = faction === Faction.BEES ? gameState.beeResources - unitStats.cost : gameState.beeResources;
+    const newAntResources = faction === Faction.ANTS ? gameState.antResources - unitStats.cost : gameState.antResources;
+    
+    dispatch(GameStateActions.updateResources(newBeeResources, newAntResources));
     dispatch(GameStateActions.addLog(`Deployed ${unitStats.name} to Lane ${lane + 1}`, faction));
 
     // Trigger commentary if enough time has passed

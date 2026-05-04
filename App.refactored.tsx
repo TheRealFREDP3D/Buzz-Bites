@@ -1,6 +1,6 @@
 import React from 'react';
-import { Faction, UnitType } from './types';
-import { LANE_COUNT } from './constants';
+import { Faction, UnitType, GameUnit } from './types';
+import { LANE_COUNT, BASE_HEALTH, BEE_UNITS } from './constants';
 import { ResourceBar } from './components/ResourceBar';
 import { UnitControls } from './components/UnitControls';
 import { BattleLog } from './components/BattleLog';
@@ -92,7 +92,7 @@ const App: React.FC = () => {
         <BaseHealth 
             faction={Faction.BEES} 
             currentHealth={gameState.beeBaseHealth} 
-            maxHealth={200} // BASE_HEALTH constant
+            maxHealth={BASE_HEALTH}
         />
 
         {/* CENTER: LANES */}
@@ -108,6 +108,21 @@ const App: React.FC = () => {
                                     (isCombatUnitSelected && !isCenterLane);
 
                 const laneUnits = gameState.units.filter(u => u.lane === laneIndex);
+
+                // Pre-calculate stack groups to avoid O(n²) operations
+                const stackGroups = new Map<string, GameUnit[]>();
+                laneUnits.forEach(unit => {
+                    const stackKey = `${unit.faction}_${unit.type}_${Math.floor(unit.position / 3)}`;
+                    if (!stackGroups.has(stackKey)) {
+                        stackGroups.set(stackKey, []);
+                    }
+                    stackGroups.get(stackKey)!.push(unit);
+                });
+
+                // Sort each stack group by instanceId for consistent ordering
+                stackGroups.forEach(group => {
+                    group.sort((a, b) => a.instanceId.localeCompare(b.instanceId));
+                });
 
                 return (
                 <div 
@@ -145,16 +160,11 @@ const App: React.FC = () => {
                         </>
                     )}
 
-                    {/* Units in this lane */}
-                    {laneUnits.map((unit) => {
-                        // Logic to detect stacks of same type/faction
-                        const stackGroup = laneUnits.filter(u => 
-                          u.faction === unit.faction && 
-                          u.type === unit.type && 
-                          Math.abs(u.position - unit.position) < 3
-                        );
-
-                        stackGroup.sort((a, b) => a.instanceId.localeCompare(b.instanceId));
+                    {/* Units in this lane - Optimized rendering */}
+                    {laneUnits.map((unit, unitIndex) => {
+                        // Find stack group for this unit
+                        const stackKey = `${unit.faction}_${unit.type}_${Math.floor(unit.position / 3)}`;
+                        const stackGroup = stackGroups.get(stackKey) || [];
                         const stackIndex = stackGroup.findIndex(u => u.instanceId === unit.instanceId);
                         const stackSize = stackGroup.length;
                         
@@ -175,7 +185,7 @@ const App: React.FC = () => {
                             <div className="w-full h-1 bg-gray-700 rounded-full mb-0.5 overflow-hidden"> 
                                 <div 
                                     className={`h-full ${unit.faction === Faction.BEES ? 'bg-yellow-400' : 'bg-red-500'}`} 
-                                    style={{ width: `${(unit.currentHp / unit.hp) * 100}%` }}
+                                    style={{ width: `${unit.hp > 0 ? (unit.currentHp / unit.hp) * 100 : 0}%` }}
                                 ></div>
                             </div>
                             
@@ -239,7 +249,7 @@ const App: React.FC = () => {
         <BaseHealth 
             faction={Faction.ANTS} 
             currentHealth={gameState.antBaseHealth} 
-            maxHealth={200} // BASE_HEALTH constant
+            maxHealth={BASE_HEALTH}
         />
 
       </div>
@@ -248,7 +258,7 @@ const App: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2">
           <UnitControls 
-            units={{} as any} // This would use BEE_UNITS constant
+            units={BEE_UNITS}
             resources={gameState.beeResources} 
             onSelect={handleUnitSelect}
             onUpgrade={handleUnitUpgrade}

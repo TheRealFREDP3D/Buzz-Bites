@@ -1,5 +1,6 @@
 import { GameState, Faction, UnitType, GameUnit, LogEntry } from '../types';
 import { BEE_UNITS, ANT_UNITS, GAME_TICK_MS, BASE_HEALTH, LANE_COUNT, UPGRADE_STAT_INCREASE, UPGRADE_COST_INCREASE, FOOD_ITEMS, GATHERER_CARRY_AMOUNT } from '../constants';
+import { SpatialGrid } from './SpatialGrid';
 
 export interface GameEngineConfig {
   aiSpawnChance: number;
@@ -28,9 +29,16 @@ export const DEFAULT_ENGINE_CONFIG: GameEngineConfig = {
 export class GameEngine {
   private config: GameEngineConfig;
   private lastUpdateTime: number = 0;
+  private spatialGrid: SpatialGrid;
 
   constructor(config: GameEngineConfig = DEFAULT_ENGINE_CONFIG) {
     this.config = config;
+    this.spatialGrid = new SpatialGrid(config.stackingProximityThreshold);
+  }
+
+  reset(): void {
+    this.lastUpdateTime = 0;
+    this.spatialGrid = new SpatialGrid(this.config.stackingProximityThreshold);
   }
 
   update(currentState: GameState, deltaTime: number): GameState {
@@ -46,9 +54,9 @@ export class GameEngine {
     if (!gameActive) return currentState;
 
     const now = Date.now();
-    const nextUnits: GameUnit[] = [];
     let beeBaseDamage = 0;
     let antBaseDamage = 0;
+    const nextUnits: GameUnit[] = [];
     const deadUnits: GameUnit[] = [];
     const centerLaneIndex = Math.floor(LANE_COUNT / 2);
 
@@ -74,13 +82,19 @@ export class GameEngine {
       this.processCombatUnit(nextUnit, unit, units, now, beeBaseDamage, antBaseDamage, nextUnits);
     });
 
-    // 3. Resolve Combat Damage
+    // 3. Update Spatial Grid for O(1) queries
+    this.spatialGrid.updateGrid(nextUnits);
+    
+    // 4. Resolve Combat Damage
     const unitsAfterDamage = this.resolveCombatDamage(nextUnits, now);
     
-    // 4. Cleanup Dead Units & Update Bases
+    // 5. Cleanup Dead Units & Update Bases
     const { livingUnits, totalBeeDamage, totalAntDamage } = this.cleanupDeadUnits(unitsAfterDamage, beeBaseDamage, antBaseDamage);
+    
+    // 6. Update Spatial Grid with living units
+    this.spatialGrid.updateGrid(livingUnits);
 
-    // 5. AI Spawning Logic
+    // 7. AI Spawning Logic
     const { updatedUnits, triggerEvent } = this.processAISpawning(
       livingUnits, 
       antResources, 
@@ -89,7 +103,7 @@ export class GameEngine {
       lastCommentaryTime
     );
 
-    // 6. Win Condition
+    // 8. Win Condition
     const { gameActive: newGameActive, winner: newWinner } = this.checkWinCondition(
       beeBaseHealth - totalAntDamage, 
       antBaseHealth - totalBeeDamage
@@ -163,14 +177,10 @@ export class GameEngine {
     antBaseDamage: number, 
     nextUnits: GameUnit[]
   ): void {
-    // Find Targets
-    const enemies = allUnits.filter(u => 
-      u.lane === unit.lane && 
-      u.faction !== unit.faction && 
-      u.currentHp > 0
-    );
+    // Find Targets using Spatial Grid for O(1) performance
+    const enemies = this.spatialGrid.findEnemies(unit);
 
-    let target: GameUnit | null = null;
+    let target: GameUnit | null = this.spatialGrid.findTarget(unit);
     let distanceToTarget = 1000;
 
     if (unit.faction === Faction.BEES) {
@@ -197,8 +207,8 @@ export class GameEngine {
       if (now - unit.lastAttackTime >= unit.attackSpeed) {
         unit.lastAttackTime = now;
         if (!target) {
-          if (unit.faction === Faction.BEES) beeBaseDamage += unit.attack;
-          else antBaseDamage += unit.attack;
+          if (unit.faction === Faction.BEES) (beeBaseDamage as any) += unit.attack;
+          else (antBaseDamage as any) += unit.attack;
         }
       }
     } else {
@@ -238,13 +248,7 @@ export class GameEngine {
 
           if (target && Math.abs(target.position - attacker.position) <= attacker.range) {
              // --- DEFENSIVE STACKING BONUS ---
-             const nearbyAllies = unitsAfterDamage.filter(ally => 
-                ally.instanceId !== target!.instanceId &&
-                ally.faction === target!.faction &&
-                ally.type === target!.type &&
-                ally.lane === target!.lane &&
-                Math.abs(ally.position - target!.position) < this.config.stackingProximityThreshold
-             ).length;
+             const nearbyAllies = this.spatialGrid.findNearbyAllies(target).length;
 
              const reductionPercent = Math.min(nearbyAllies * this.config.defensiveStackingBonus, this.config.maxDefensiveBonus);
              const damageMultiplier = 1 - reductionPercent;
