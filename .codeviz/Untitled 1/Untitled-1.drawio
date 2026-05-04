@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <mxfile host="codeviz.app" modified="2026-03-02T00:07:17.331Z" agent="CodeViz Exporter" version="14.6.5" type="device">
+          <diagram id="codeviz-diagram" name="System Diagram">
+            <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+              <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="base.cv::buzzBitesApp_spa" value="" style="html=1;whiteSpace=wrap;container=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fillOpacity=20;strokeWidth=2;containerType=none;recursiveResize=0;movable=1;resizable=1;autosize=0;dropTarget=0" vertex="1" parent="base.cv::buzzBitesApp">
+                  <mxGeometry x="40" y="71" width="800" height="733" as="geometry"/>
+                </mxCell>
+                <mxCell id="base.cv::buzzBitesApp_spa_label" value="**Buzz Bites SPA**" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;labelBackgroundColor=white;spacing=5" vertex="1" parent="base.cv::buzzBitesApp">
+                  <mxGeometry x="48" y="79" width="724" height="24" as="geometry"/>
+                </mxCell>
+<mxCell id="base.cv::buzzBitesApp" value="" style="html=1;whiteSpace=wrap;container=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fillOpacity=20;strokeWidth=2;containerType=none;recursiveResize=0;movable=1;resizable=1;autosize=0;dropTarget=0" vertex="1" parent="__uml__base.cv">
+                  <mxGeometry x="32" y="8" width="840" height="869" as="geometry"/>
+                </mxCell>
+                <mxCell id="base.cv::buzzBitesApp_label" value="**Buzz Bites Application**" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;labelBackgroundColor=white;spacing=5" vertex="1" parent="__uml__base.cv">
+                  <mxGeometry x="40" y="16" width="764" height="24" as="geometry"/>
+                </mxCell>
+<mxCell id="__uml__base.cv" value="" style="html=1;whiteSpace=wrap;container=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fillOpacity=20;strokeWidth=2;containerType=none;recursiveResize=0;movable=1;resizable=1;autosize=0;dropTarget=0" vertex="1" parent="1">
+                  <mxGeometry x="12" y="12" width="880" height="1050" as="geometry"/>
+                </mxCell>
+                <mxCell id="__uml__base.cv_label" value="base.cv" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;labelBackgroundColor=white;spacing=5" vertex="1" parent="1">
+                  <mxGeometry x="20" y="20" width="804" height="24" as="geometry"/>
+                </mxCell>
+                <mxCell id="base.cv::buzzBitesApp_spa_gameStateManager" value="**Game State Manager**" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="base.cv::buzzBitesApp_spa">
+                      <mxGeometry x="263.75" y="437" width="297" height="96" as="geometry"/>
+                    </mxCell>
+<mxCell id="base.cv::buzzBitesApp_spa_gameEngine" value="**Game Engine**" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="base.cv::buzzBitesApp_spa">
+                      <mxGeometry x="422.75" y="131" width="297" height="120" as="geometry"/>
+                    </mxCell>
+<mxCell id="base.cv::buzzBitesApp_spa_uiController" value="**UI Controller**" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="base.cv::buzzBitesApp_spa">
+                      <mxGeometry x="105.75" y="131" width="297" height="120" as="geometry"/>
+                    </mxCell>
+<mxCell id="base.cv::buzzBitesApp_spa_geminiService" value="**Gemini Service**" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="base.cv::buzzBitesApp_spa">
+                      <mxGeometry x="20" y="291" width="297" height="96" as="geometry"/>
+                    </mxCell>
+<mxCell id="base.cv::buzzBitesApp_spa_uiRenderer" value="**UI Renderer**" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="base.cv::buzzBitesApp_spa">
+                      <mxGeometry x="263.75" y="573" width="297" height="120" as="geometry"/>
+                    </mxCell>
+<mxCell id="base.cv::googleGeminiApi" value="**Google Gemini API**" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="__uml__base.cv">
+                      <mxGeometry x="22.375" y="914" width="297" height="96" as="geometry"/>
+                    </mxCell>
+<mxCell id="base.cv::pollinationsImageService" value="**Pollinations AI Image Service**" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="__uml__base.cv">
+                      <mxGeometry x="339.375" y="926" width="287" height="72" as="geometry"/>
+                    </mxCell>
+                <mxCell id="edge-base.cv::e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="base.cv::buzzBitesApp_spa_uiController" target="base.cv::buzzBitesApp_spa_gameStateManager">
+                    <mxGeometry relative="1" as="geometry"/>
+                  </mxCell>
+                  <mxCell id="edge-base.cv::e1_label" value="Updates" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-base.cv::e1">
+                    <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                      <mxPoint as="offset"/>
+                    </mxGeometry>
+                  </mxCell>
+<mxCell id="edge-base.cv::e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="base.cv::buzzBitesApp_spa_gameEngine" target="base.cv::buzzBitesApp_spa_gameStateManager">
+                    <mxGeometry relative="1" as="geometry"/>
+                  </mxCell>
+                  <mxCell id="edge-base.cv::e2_label" value="Updates" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-base.cv::e2">
+                    <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                      <mxPoint as="offset"/>
+                    </mxGeometry>
+                  </mxCell>
+<mxCell id="edge-base.cv::e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="base.cv::buzzBitesApp_spa_gameStateManager" target="base.cv::buzzBitesApp_spa_uiRenderer">
+                    <mxGeometry relative="1" as="geometry"/>
+                  </mxCell>
+                  <mxCell id="edge-base.cv::e3_label" value="Notifies" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-base.cv::e3">
+                    <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                      <mxPoint as="offset"/>
+                    </mxGeometry>
+                  </mxCell>
+<mxCell id="edge-base.cv::e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="base.cv::buzzBitesApp_spa_uiController" target="base.cv::buzzBitesApp_spa_geminiService">
+                    <mxGeometry relative="1" as="geometry"/>
+                  </mxCell>
+                  <mxCell id="edge-base.cv::e4_label" value="Calls" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-base.cv::e4">
+                    <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                      <mxPoint as="offset"/>
+                    </mxGeometry>
+                  </mxCell>
+<mxCell id="edge-base.cv::e5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="base.cv::buzzBitesApp_spa_geminiService" target="base.cv::buzzBitesApp_spa_gameStateManager">
+                    <mxGeometry relative="1" as="geometry"/>
+                  </mxCell>
+                  <mxCell id="edge-base.cv::e5_label" value="Updates" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-base.cv::e5">
+                    <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                      <mxPoint as="offset"/>
+                    </mxGeometry>
+                  </mxCell>
+<mxCell id="edge-base.cv::e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="base.cv::buzzBitesApp_spa_geminiService" target="base.cv::googleGeminiApi">
+                    <mxGeometry relative="1" as="geometry"/>
+                  </mxCell>
+                  <mxCell id="edge-base.cv::e6_label" value="Makes API calls" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-base.cv::e6">
+                    <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                      <mxPoint as="offset"/>
+                    </mxGeometry>
+                  </mxCell>
+<mxCell id="edge-base.cv::e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="base.cv::buzzBitesApp_spa_uiRenderer" target="base.cv::pollinationsImageService">
+                    <mxGeometry relative="1" as="geometry"/>
+                  </mxCell>
+                  <mxCell id="edge-base.cv::e7_label" value="Fetches image" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-base.cv::e7">
+                    <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                      <mxPoint as="offset"/>
+                    </mxGeometry>
+                  </mxCell>
+              </root>
+            </mxGraphModel>
+          </diagram>
+        </mxfile>

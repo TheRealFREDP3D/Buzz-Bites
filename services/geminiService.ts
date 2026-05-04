@@ -5,8 +5,8 @@ import { FALLBACK_QUOTES } from '../constants';
 let ai: GoogleGenAI | null = null;
 
 try {
-  if (process.env.API_KEY) {
-    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  if (import.meta.env.VITE_GEMINI_API_KEY) {
+    ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
   }
 } catch (error) {
   console.warn("Gemini Client initialization failed", error);
