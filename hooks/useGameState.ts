@@ -26,11 +26,15 @@ export interface GameStateReturn {
 
 export function useGameState(): GameStateReturn {
   const [gameState, dispatch] = useReducer(gameReducer, initialGameState);
-  
-  // Game engine and systems
+  const gameStateRef = useRef(gameState);
   const gameEngineRef = useRef(new GameEngine(DEFAULT_ENGINE_CONFIG));
   const unitSystemRef = useRef(new UnitSystem(Math.floor(LANE_COUNT / 2)));
   const lastUpdateRef = useRef(Date.now());
+
+  // Update ref on each render to keep it current
+  useEffect(() => {
+    gameStateRef.current = gameState;
+  }, [gameState]);
 
   // Game loop
   useEffect(() => {
@@ -41,11 +45,14 @@ export function useGameState(): GameStateReturn {
       const deltaTime = now - lastUpdateRef.current;
       lastUpdateRef.current = now;
 
+      // Use current state from ref to avoid stale closure
+      const currentState = gameStateRef.current;
+      
       // Update game state through engine
-      const updatedState = gameEngineRef.current.update(gameState, deltaTime);
+      const updatedState = gameEngineRef.current.update(currentState, deltaTime);
       
       // Apply updates through reducer
-      if (updatedState !== gameState) {
+      if (updatedState !== currentState) {
         dispatch(GameStateActions.gameTickUpdate({
           beeResources: updatedState.beeResources,
           antResources: updatedState.antResources,
