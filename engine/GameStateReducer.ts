@@ -1,4 +1,5 @@
-import { GameState, Faction, UnitType, GameUnit, LogEntry } from '../types';
+import { GameState, Faction, UnitType, GameUnit, Unit, LogEntry } from '../types';
+import { BEE_UNITS, ANT_UNITS, UPGRADE_STAT_INCREASE } from '../constants';
 import { BASE_HEALTH, FOOD_ITEMS } from '../constants';
 
 export type GameStateAction = 
@@ -170,31 +171,32 @@ function createNewUnit(
   lane: number, 
   unitLevels: Record<UnitType, number>
 ): GameUnit {
-  // This will be implemented with the actual unit creation logic
-  // For now, return a placeholder
-  const instanceId = `${faction.toLowerCase()}_${unitType.toLowerCase()}_${Date.now()}_${Math.random()}`;
+  // Select base stats from appropriate faction units
+  const baseUnit = faction === Faction.BEES ? BEE_UNITS[unitType] : ANT_UNITS[unitType];
   const level = unitLevels[unitType] || 1;
   
-  // This is a simplified version - the actual implementation would use BEE_UNITS/ANT_UNITS
+  // Apply upgrade multiplier (50% stat boost per level)
+  const upgradeMultiplier = 1 + (level - 1) * UPGRADE_STAT_INCREASE;
+  
+  // Create instance ID
+  const instanceId = `${faction.toLowerCase()}_${unitType.toLowerCase()}_${Date.now()}_${Math.random()}`;
+  
+  // Calculate enhanced stats
+  const enhancedHp = Math.round(baseUnit.hp * upgradeMultiplier);
+  const enhancedAttack = Math.round(baseUnit.attack * upgradeMultiplier);
+  
+  // Initialize position based on faction
+  const position = faction === Faction.BEES ? 0 : 100;
+  
   return {
-    id: `${faction}_${unitType}`,
-    type: unitType,
-    name: `${unitType} Unit`,
-    cost: 10,
-    baseUpgradeCost: 50,
-    attack: 10,
-    hp: 50,
-    speed: 0.5,
-    range: 5,
-    gatherRate: 0,
-    description: `${unitType} unit`,
-    emoji: faction === Faction.BEES ? '🐝' : '🐜',
-    attackSpeed: 1000,
+    ...baseUnit,
     instanceId,
     faction,
     lane,
-    position: faction === Faction.BEES ? 0 : 100,
-    currentHp: 50,
+    position,
+    hp: enhancedHp,
+    attack: enhancedAttack,
+    currentHp: enhancedHp,
     lastAttackTime: 0,
     isAttacking: false,
     isCarrying: false
