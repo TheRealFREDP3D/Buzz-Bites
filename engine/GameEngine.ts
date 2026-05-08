@@ -54,8 +54,7 @@ export class GameEngine {
     if (!gameActive) return currentState;
 
     const now = Date.now();
-    let beeBaseDamage = 0;
-    let antBaseDamage = 0;
+    const baseDamageAccumulator = { bee: 0, ant: 0 };
     const nextUnits: GameUnit[] = [];
     const deadUnits: GameUnit[] = [];
     const centerLaneIndex = Math.floor(LANE_COUNT / 2);
@@ -79,7 +78,7 @@ export class GameEngine {
       }
 
       // === COMBAT UNIT LOGIC ===
-      this.processCombatUnit(nextUnit, now, beeBaseDamage, antBaseDamage, nextUnits);
+      this.processCombatUnit(nextUnit, now, baseDamageAccumulator, nextUnits);
     });
 
     // 3. Update Spatial Grid for O(1) queries
@@ -89,7 +88,7 @@ export class GameEngine {
     const unitsAfterDamage = this.resolveCombatDamage(nextUnits, now);
     
     // 5. Cleanup Dead Units & Update Bases
-    const { livingUnits, totalBeeDamage, totalAntDamage } = this.cleanupDeadUnits(unitsAfterDamage, beeBaseDamage, antBaseDamage);
+    const { livingUnits, totalBeeDamage, totalAntDamage } = this.cleanupDeadUnits(unitsAfterDamage, baseDamageAccumulator.bee, baseDamageAccumulator.ant);
     
     // 6. Update Spatial Grid with living units
     this.spatialGrid.updateGrid(livingUnits);
@@ -172,8 +171,7 @@ export class GameEngine {
   private processCombatUnit(
     unit: GameUnit, 
     now: number, 
-    beeBaseDamage: number, 
-    antBaseDamage: number, 
+    baseDamageAccumulator: { bee: number; ant: number },
     nextUnits: GameUnit[]
   ): void {
     // Find Targets using Spatial Grid for O(1) performance
@@ -206,8 +204,8 @@ export class GameEngine {
       if (now - unit.lastAttackTime >= unit.attackSpeed) {
         unit.lastAttackTime = now;
         if (!target) {
-          if (unit.faction === Faction.BEES) (beeBaseDamage as any) += unit.attack;
-          else (antBaseDamage as any) += unit.attack;
+          if (unit.faction === Faction.BEES) baseDamageAccumulator.bee += unit.attack;
+          else baseDamageAccumulator.ant += unit.attack;
         }
       }
     } else {
