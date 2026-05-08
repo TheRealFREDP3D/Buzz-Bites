@@ -15,7 +15,7 @@ export const BaseHealth: React.FC<BaseHealthProps> = ({ faction, currentHealth, 
   const theme = isBees ? {
     borderColor: 'border-yellow-600',
     bgColor: 'bg-yellow-100',
-    fillColor: 'bg-yellow-500',
+    fillColor: 'bg-gradient-to-t from-yellow-600 to-yellow-400',
     textColor: 'text-yellow-900/50',
     labelColor: 'text-yellow-800',
     labelBorder: 'border-yellow-500',
@@ -25,7 +25,7 @@ export const BaseHealth: React.FC<BaseHealthProps> = ({ faction, currentHealth, 
   } : {
     borderColor: 'border-red-600',
     bgColor: 'bg-red-100',
-    fillColor: 'bg-red-500',
+    fillColor: 'bg-gradient-to-t from-red-600 to-red-400',
     textColor: 'text-red-900/50',
     labelColor: 'text-red-800',
     labelBorder: 'border-red-500',
@@ -34,12 +34,14 @@ export const BaseHealth: React.FC<BaseHealthProps> = ({ faction, currentHealth, 
     label: 'NEST'
   };
 
+  const isLowHealth = healthPercent < 25;
+
   return (
-    <div className="w-24 flex flex-col items-center gap-2 h-full">
-      <div className={`w-full flex-1 ${theme.bgColor} border-4 ${theme.borderColor} rounded-xl overflow-hidden relative shadow-lg flex flex-col justify-end items-center p-1`}>
+    <div className={`w-24 flex flex-col items-center gap-2 h-full transition-all duration-300 ${isLowHealth ? 'animate-pulse scale-105' : ''}`}>
+      <div className={`w-full flex-1 ${theme.bgColor} border-4 ${isLowHealth ? 'border-red-600 drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]' : theme.borderColor} rounded-2xl overflow-hidden relative shadow-[inset_0_2px_10px_rgba(0,0,0,0.2)] flex flex-col justify-end items-center p-1`}>
         {/* Health Fill Animation */}
         <div 
-          className={`absolute bottom-0 left-0 right-0 ${theme.fillColor} transition-all duration-500 ease-out`}
+          className={`absolute bottom-0 left-0 right-0 ${theme.fillColor} transition-all duration-500 ease-out opacity-90`}
           style={{ height: `${healthPercent}%` }}
         />
         

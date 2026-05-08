@@ -57,7 +57,7 @@ export const UnitControls: React.FC<UnitControlsProps> = ({
             <div key={unit.id} className="flex flex-col gap-1 group relative">
               
                {/* Tooltip - Popover above the card */}
-               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 bg-slate-900/95 text-white text-xs rounded-xl p-3 shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 border-2 border-yellow-500 backdrop-blur-sm scale-95 group-hover:scale-100 origin-bottom">
+               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 bg-slate-900/80 backdrop-blur-md text-white text-xs rounded-xl p-3 shadow-[0_10px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 border-2 border-yellow-500/50 scale-95 group-hover:scale-100 origin-bottom flex flex-col gap-2">
                 <div className="font-bold text-yellow-400 text-lg mb-1 flex justify-between items-center comic-font tracking-wide">
                    <span>{unit.name}</span>
                    <span className="bg-slate-700 px-2 py-0.5 rounded text-xs font-sans text-white border border-slate-500">Lvl {currentLevel}</span>
@@ -102,7 +102,7 @@ export const UnitControls: React.FC<UnitControlsProps> = ({
                 </div>
                 
                 {/* Arrow Tip */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-2 border-8 border-transparent border-t-yellow-500"></div>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-2 border-8 border-transparent border-t-yellow-500/50"></div>
               </div>
 
               {/* Recruit Button */}
@@ -110,12 +110,12 @@ export const UnitControls: React.FC<UnitControlsProps> = ({
                 onClick={() => onSelect(unit.type)}
                 disabled={!canAffordUnit && !isSelected}
                 className={`
-                  relative overflow-hidden rounded-t-xl border-b-4 border-x-4 border-t-4 transition-all p-1 flex flex-col items-center justify-center h-28 w-full
+                  relative overflow-hidden rounded-t-xl border-x-4 border-t-4 transition-all duration-150 p-1 flex flex-col items-center justify-center h-28 w-full
                   ${isSelected 
-                     ? cardSelectedColor 
-                     : `${cardBaseColor} ${cardHoverColor}`
+                     ? `${cardSelectedColor} translate-y-[4px] shadow-none` 
+                     : `${cardBaseColor} ${cardHoverColor} border-b-4 shadow-[0_4px_0_0_rgba(0,0,0,0.3)] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_rgba(0,0,0,0.3)] active:translate-y-[4px] active:shadow-none`
                   }
-                  ${!canAffordUnit && !isSelected ? 'opacity-50 grayscale cursor-not-allowed border-gray-500 bg-gray-300' : ''}
+                  ${!canAffordUnit && !isSelected ? 'opacity-60 grayscale-[0.8] cursor-not-allowed border-gray-500 bg-gray-300 shadow-none translate-y-[4px]' : ''}
                 `}
               >
                 <div className="absolute top-1 right-1 bg-black/20 text-white text-[10px] px-1.5 rounded font-bold">
@@ -140,10 +140,10 @@ export const UnitControls: React.FC<UnitControlsProps> = ({
                 onClick={() => onUpgrade(unit.type)}
                 disabled={!canAffordUpgrade}
                 className={`
-                  rounded-b-xl border-x-4 border-b-4 border-t-0 p-1 text-[10px] font-bold text-white flex flex-col items-center justify-center h-12
+                  rounded-b-xl border-x-4 border-b-4 border-t-0 p-1 text-[10px] font-bold text-white flex flex-col items-center justify-center h-12 transition-all duration-150
                   ${canAffordUpgrade 
-                    ? 'bg-green-500 border-green-700 hover:bg-green-400 cursor-pointer active:translate-y-0.5' 
-                    : 'bg-gray-500 border-gray-700 cursor-not-allowed opacity-80'}
+                    ? 'bg-green-500 border-green-700 hover:bg-green-400 cursor-pointer shadow-[0_4px_0_0_#15803d] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#15803d] active:translate-y-[4px] active:shadow-none' 
+                    : 'bg-gray-500 border-gray-700 cursor-not-allowed opacity-80 shadow-none translate-y-[4px]'}
                 `}
               >
                 <span>UPGRADE</span>

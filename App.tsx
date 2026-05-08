@@ -391,7 +391,7 @@ const App: React.FC = () => {
           const territoryRatio = (gameState.beeBaseHealth / (gameState.beeBaseHealth + gameState.antBaseHealth)) * 100;
           const winningFaction = territoryRatio > 50 ? Faction.BEES : Faction.ANTS;
 
-          if (process.env.API_KEY) {
+          if (import.meta.env.VITE_GEMINI_API_KEY) {
              const comment = await generateBattleCommentary(winningFaction, eventDesc, territoryRatio);
              setGameState(prev => ({ ...prev, commentary: comment, isLoadingCommentary: false }));
           } else {
@@ -576,8 +576,8 @@ const App: React.FC = () => {
       />
 
       {/* Commentary */}
-      <div className="bg-slate-900/90 text-yellow-300 p-2 rounded-lg mb-2 text-center font-bold border-2 border-slate-700 shadow-lg relative z-20">
-         <span className="mr-2">🎙️</span>
+      <div className="backdrop-blur-md bg-slate-900/70 text-yellow-300 p-3 rounded-xl mb-4 text-center font-bold border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.2)] relative z-20 text-lg tracking-wide transition-all duration-300">
+         <span className="mr-3 text-xl animate-pulse inline-block">🎙️</span>
          "{gameState.commentary}"
       </div>
 
@@ -608,17 +608,17 @@ const App: React.FC = () => {
                     key={laneIndex}
                     onClick={() => handleLaneClick(laneIndex)}
                     className={`
-                    relative flex-1 w-full border-b border-white/20 flex items-center transition-all duration-200
+                    relative flex-1 w-full border-b border-black/30 flex items-center transition-all duration-300
                     ${isCenterLane 
-                        ? 'bg-[#90BE6D] border-t-4 border-b-4 border-yellow-200/50 shadow-inner' 
-                        : (laneIndex % 2 === 0 ? 'bg-green-600' : 'bg-green-500')
+                        ? 'bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700 border-y-4 border-amber-300/50 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]' 
+                        : (laneIndex % 2 === 0 ? 'bg-gradient-to-r from-green-800 to-green-700' : 'bg-gradient-to-r from-green-700 to-green-600')
                     }
-                    ${gameState.selectedUnit && isValidLane ? 'cursor-pointer hover:brightness-110' : ''}
-                    ${gameState.selectedUnit && !isValidLane ? 'cursor-not-allowed grayscale-[0.5] opacity-80' : ''}
-                    ${gameState.selectedUnit && isValidLane ? 'ring-inset ring-4 ring-yellow-400 z-10' : ''}
+                    ${gameState.selectedUnit && isValidLane ? 'cursor-pointer hover:brightness-125' : ''}
+                    ${gameState.selectedUnit && !isValidLane ? 'cursor-not-allowed grayscale-[0.7] opacity-60' : ''}
+                    ${gameState.selectedUnit && isValidLane ? 'ring-inset ring-4 ring-yellow-400 z-10 shadow-[0_0_15px_rgba(250,204,21,0.5)]' : ''}
                     group
                     `}
-                    style={isCenterLane ? { backgroundImage: 'radial-gradient(#ffffff33 10%, transparent 10%)', backgroundSize: '20px 20px' } : {}}
+                    style={isCenterLane ? { backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm0 4h20v2H16v-2zm0 4h20v2H16v-2zm0 4h20v2H16v-2zm0 4h20v2H16v-2z\' fill=\'%23ffffff\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")' } : {}}
                 >
                     {/* Lane Number */}
                     <div className="absolute left-2 text-white/20 font-mono text-4xl font-bold pointer-events-none z-0">

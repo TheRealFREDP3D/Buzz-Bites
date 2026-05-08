@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+/package-lock.json
+/node_modules
+/.qodo
+/.env
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
