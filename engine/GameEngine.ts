@@ -73,7 +73,10 @@ export class GameEngine {
 
       // === GATHERER LOGIC ===
       if (unit.type === UnitType.GATHERER) {
-        this.processGatherer(nextUnit, unit.faction, centerLaneIndex, beeResources, antResources, nextUnits);
+        const gathererResult = this.processGatherer(nextUnit, unit.faction, centerLaneIndex, beeResources, antResources, nextUnits);
+        beeIncome += gathererResult.beeResourcesDelta;
+        antIncome += gathererResult.antResourcesDelta;
+        nextUnits.push(gathererResult.updatedUnit);
         return; // Skip combat logic for gatherers
       }
 
@@ -129,7 +132,10 @@ export class GameEngine {
     beeResources: number, 
     antResources: number, 
     nextUnits: GameUnit[]
-  ): void {
+  ): { updatedUnit: GameUnit; beeResourcesDelta: number; antResourcesDelta: number } {
+    let beeResourcesDelta = 0;
+    let antResourcesDelta = 0;
+    
     // Gatherers only work in the center lane
     if (faction === Faction.BEES) {
       if (unit.isCarrying) {
@@ -137,6 +143,8 @@ export class GameEngine {
         unit.position -= unit.speed;
         if (unit.position <= 0) {
           unit.position = 0;
+          // Deposit resources before clearing carrying flag
+          beeResourcesDelta += GATHERER_CARRY_AMOUNT;
           unit.isCarrying = false;
         }
       } else {
@@ -154,6 +162,8 @@ export class GameEngine {
         unit.position += unit.speed;
         if (unit.position >= 100) {
           unit.position = 100;
+          // Deposit resources before clearing carrying flag
+          antResourcesDelta += GATHERER_CARRY_AMOUNT;
           unit.isCarrying = false;
         }
       } else {
@@ -165,7 +175,8 @@ export class GameEngine {
         }
       }
     }
-    nextUnits.push(unit);
+    
+    return { updatedUnit: unit, beeResourcesDelta, antResourcesDelta };
   }
 
   private processCombatUnit(
