@@ -79,7 +79,7 @@ export class GameEngine {
       }
 
       // === COMBAT UNIT LOGIC ===
-      this.processCombatUnit(nextUnit, unit, units, now, beeBaseDamage, antBaseDamage, nextUnits);
+      this.processCombatUnit(nextUnit, now, beeBaseDamage, antBaseDamage, nextUnits);
     });
 
     // 3. Update Spatial Grid for O(1) queries
@@ -171,7 +171,6 @@ export class GameEngine {
 
   private processCombatUnit(
     unit: GameUnit, 
-    allUnits: GameUnit[], 
     now: number, 
     beeBaseDamage: number, 
     antBaseDamage: number, 
