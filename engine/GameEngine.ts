@@ -94,7 +94,7 @@ export class GameEngine {
     this.spatialGrid.updateGrid(livingUnits);
 
     // 7. AI Spawning Logic
-    const { updatedUnits, triggerEvent } = this.processAISpawning(
+    const { updatedUnits, updatedAntResources, triggerEvent } = this.processAISpawning(
       livingUnits, 
       antResources, 
       centerLaneIndex, 
@@ -111,7 +111,7 @@ export class GameEngine {
     return {
       ...currentState,
       beeResources: beeResources + beeIncome,
-      antResources: antResources + antIncome,
+      antResources: updatedAntResources + antIncome,
       beeBaseHealth: Math.max(0, beeBaseHealth - totalAntDamage),
       antBaseHealth: Math.max(0, antBaseHealth - totalBeeDamage),
       units: updatedUnits,
@@ -283,9 +283,9 @@ export class GameEngine {
     centerLaneIndex: number, 
     now: number, 
     lastCommentaryTime: number
-  ): { updatedUnits: GameUnit[]; triggerEvent?: string } {
+  ): { updatedUnits: GameUnit[]; updatedAntResources: number; triggerEvent?: string } {
     if (Math.random() >= this.config.aiSpawnChance) {
-      return { updatedUnits: livingUnits };
+      return { updatedUnits: livingUnits, updatedAntResources: antResources };
     }
 
     const canBuyWorker = antResources >= ANT_UNITS.WORKER.cost;
@@ -371,7 +371,7 @@ export class GameEngine {
       }
     }
 
-    return { updatedUnits: livingUnits, triggerEvent };
+    return { updatedUnits: livingUnits, updatedAntResources, triggerEvent };
   }
 
   private checkWinCondition(beeBaseHealth: number, antBaseHealth: number): {
