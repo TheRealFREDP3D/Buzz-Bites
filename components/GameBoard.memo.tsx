@@ -35,7 +35,11 @@ const UnitRender = memo(({ unit, centerFoodItem, laneUnits }: UnitRenderProps) =
     return { stackIndex, stackSize, verticalOffset };
   }, [unit, laneUnits]);
 
-  const hpPercentage = useMemo(() => (unit.currentHp / unit.hp) * 100, [unit.currentHp, unit.hp]);
+  const hpPercentage = useMemo(() => {
+    if (unit.hp <= 0) return 0;
+    const percentage = (unit.currentHp / unit.hp) * 100;
+    return Math.min(Math.max(percentage, 0), 100); // Clamp to [0, 100]
+  }, [unit.currentHp, unit.hp]);
 
   return (
     <div
