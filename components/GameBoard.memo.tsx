@@ -114,11 +114,15 @@ const LaneRender = memo(({
   }, [laneIndex, onLaneClick]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!selectedUnit || !isValidLane) {
+      return;
+    }
+
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       onLaneClick(laneIndex);
     }
-  }, [laneIndex, onLaneClick]);
+  }, [laneIndex, onLaneClick, isValidLane, selectedUnit]);
 
   const laneUnits = useMemo(() => units, [units]);
   
