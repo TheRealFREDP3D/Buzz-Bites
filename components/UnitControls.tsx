@@ -22,10 +22,17 @@ export const UnitControls: React.FC<UnitControlsProps> = ({
   unitLevels 
 }) => {
   return (
-    <div className="p-4 rounded-xl border-4 border-yellow-500 bg-yellow-100 shadow-lg">
+    <div 
+      className="p-4 rounded-xl border-4 border-yellow-500 bg-yellow-100 shadow-lg"
+      role="region"
+      aria-labelledby="unit-controls-heading"
+    >
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-2xl text-yellow-800 comic-font">RECRUITMENT & UPGRADES</h3>
-        <div className="text-sm font-bold text-yellow-900 bg-yellow-300 px-3 py-1 rounded-full border border-yellow-600">
+        <h3 className="text-2xl text-yellow-800 comic-font" id="unit-controls-heading">RECRUITMENT & UPGRADES</h3>
+        <div 
+          className="text-sm font-bold text-yellow-900 bg-yellow-300 px-3 py-1 rounded-full border border-yellow-600"
+          aria-live="polite"
+        >
            Total Army: {beeArmyCount}
         </div>
       </div>
@@ -109,6 +116,8 @@ export const UnitControls: React.FC<UnitControlsProps> = ({
               <button
                 onClick={() => onSelect(unit.type)}
                 disabled={!canAffordUnit && !isSelected}
+                aria-label={`Select ${unit.name} - Cost: ${unit.cost} nectar, Level ${currentLevel}${isSelected ? ' (Currently selected)' : ''}`}
+                aria-pressed={isSelected}
                 className={`
                   relative overflow-hidden rounded-t-xl border-x-4 border-t-4 transition-all duration-150 p-1 flex flex-col items-center justify-center h-28 w-full
                   ${isSelected 
@@ -139,6 +148,7 @@ export const UnitControls: React.FC<UnitControlsProps> = ({
               <button
                 onClick={() => onUpgrade(unit.type)}
                 disabled={!canAffordUpgrade}
+                aria-label={`Upgrade ${unit.name} to Level ${currentLevel + 1} - Cost: ${upgradeCost} nectar${!canAffordUpgrade ? ' (Not enough resources)' : ''}`}
                 className={`
                   rounded-b-xl border-x-4 border-b-4 border-t-0 p-1 text-[10px] font-bold text-white flex flex-col items-center justify-center h-12 transition-all duration-150
                   ${canAffordUpgrade 
@@ -147,7 +157,7 @@ export const UnitControls: React.FC<UnitControlsProps> = ({
                 `}
               >
                 <span>UPGRADE</span>
-                <span className="bg-black/20 px-1 rounded mt-0.5">🪙 {upgradeCost}</span>
+                <span className="bg-black/20 px-1 rounded mt-0.5" aria-hidden="true">🪙 {upgradeCost}</span>
               </button>
             </div>
           );

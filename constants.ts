@@ -1,14 +1,24 @@
-import { Unit, UnitType, FoodItem } from './types';
+import { FoodItem, Unit, UnitType } from './types';
 
-export const GAME_TICK_MS = 50; // Faster tick for smooth movement
-export const LANE_COUNT = 7;
-export const BASE_HEALTH = 200;
-export const WINNING_SCORE = 100; // Legacy, kept for compatibility if needed, but using Base Health now
-export const INITIAL_TERRITORY = 50; // Legacy
+// Re-export core config/constants only
+export {
+  GAME_TICK_MS,
+  LANE_COUNT,
+  BASE_HEALTH,
+  UPGRADE_STAT_INCREASE,
+  UPGRADE_COST_INCREASE,
+  GATHERER_CARRY_AMOUNT,
+  GAME_CONFIG,
+  CENTER_LANE_INDEX,
+  POSITIONS,
+  RESOURCES,
+  COMBAT,
+  AI,
+} from './utils/gameConstants';
 
-export const UPGRADE_STAT_INCREASE = 0.50; // 50% stat boost per level
-export const UPGRADE_COST_INCREASE = 1.5; // 50% cost increase per level
-export const GATHERER_CARRY_AMOUNT = 20;
+// Legacy constants for backward compatibility
+export const WINNING_SCORE = 100;
+export const INITIAL_TERRITORY = 50;
 
 export const FOOD_ITEMS: FoodItem[] = [
   { name: "Giant Cupcake", emoji: "🧁" },
