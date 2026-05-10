@@ -8,6 +8,7 @@ interface GameBoardProps {
   centerFoodItem: { emoji: string; name: string };
   onLaneClick: (laneIndex: number) => void;
   className?: string;
+  'aria-label'?: string;
 }
 
 interface UnitRenderProps {
@@ -112,18 +113,34 @@ const LaneRender = memo(({
     onLaneClick(laneIndex);
   }, [laneIndex, onLaneClick]);
 
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onLaneClick(laneIndex);
+    }
+  }, [laneIndex, onLaneClick]);
+
   const laneUnits = useMemo(() => units, [units]);
+  
+  const laneDescription = isCenterLane 
+    ? `Resource Corridor - Lane ${laneIndex + 1} with ${laneUnits.length} units` 
+    : `Combat Lane ${laneIndex + 1} with ${laneUnits.length} units`;
 
   return (
     <div 
+      role="button"
+      tabIndex={selectedUnit && isValidLane ? 0 : -1}
+      aria-label={laneDescription}
+      aria-disabled={selectedUnit ? !isValidLane : undefined}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
       className={`
         relative flex-1 w-full border-b border-black/30 flex items-center transition-all duration-300
         ${isCenterLane 
           ? 'bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700 border-y-4 border-amber-300/50 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]' 
           : (laneIndex % 2 === 0 ? 'bg-gradient-to-r from-green-800 to-green-700' : 'bg-gradient-to-r from-green-700 to-green-600')
         }
-        ${selectedUnit && isValidLane ? 'cursor-pointer hover:brightness-125' : ''}
+        ${selectedUnit && isValidLane ? 'cursor-pointer hover:brightness-125 focus:ring-2 focus:ring-white focus:outline-none' : ''}
         ${selectedUnit && !isValidLane ? 'cursor-not-allowed grayscale-[0.7] opacity-60' : ''}
         ${selectedUnit && isValidLane ? 'ring-inset ring-4 ring-yellow-400 z-10 shadow-[0_0_15px_rgba(250,204,21,0.5)]' : ''}
         group
@@ -190,7 +207,7 @@ const LaneRender = memo(({
 LaneRender.displayName = 'LaneRender';
 
 // Memoized game board component
-export const GameBoard = memo(({ units, selectedUnit, centerFoodItem, onLaneClick, className }: GameBoardProps) => {
+export const GameBoard = memo(({ units, selectedUnit, centerFoodItem, onLaneClick, className, 'aria-label': ariaLabel }: GameBoardProps) => {
   const centerLaneIndex = useMemo(() => Math.floor(LANE_COUNT / 2), []);
   
   const isGathererSelected = useMemo(() => selectedUnit === UnitType.GATHERER, [selectedUnit]);
@@ -215,7 +232,11 @@ export const GameBoard = memo(({ units, selectedUnit, centerFoodItem, onLaneClic
   }, [units, selectedUnit, isGathererSelected, isCombatUnitSelected, centerLaneIndex]);
 
   return (
-    <div className={`flex-1 bg-green-700 rounded-xl border-8 border-green-900 shadow-2xl relative overflow-hidden flex flex-col justify-between ${className || ''}`}>
+    <div 
+      role="region"
+      aria-label={ariaLabel || "Game battlefield"}
+      className={`flex-1 bg-green-700 rounded-xl border-8 border-green-900 shadow-2xl relative overflow-hidden flex flex-col justify-between ${className || ''}`}
+    >
       {lanes.map(({ laneIndex, isCenterLane, isValidLane, laneUnits }) => (
         <LaneRender
           key={laneIndex}

@@ -1,0 +1,48 @@
+/* Game Animation Styles */
+
+/* Wiggle animations for attacking units */
+.animate-wiggle-fast {
+  animation: wiggle 0.2s ease-in-out infinite;
+}
+
+.animate-wiggle-slow {
+  animation: wiggle 3s ease-in-out infinite;
+}
+
+/* Bounce animation for idle units */
+.animate-bounce-slow {
+  animation: bounce 1s infinite;
+}
+
+/* Keyframes */
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(-10deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-5%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+/* Comic font style */
+.comic-font {
+  font-family: 'Comic Sans MS', 'Chalkboard', 'ChalkboardSE-Regular', cursive;
+  font-weight: bold;
+}
+
+/* Text stroke effect for headers */
+.text-stroke-2 {
+  -webkit-text-stroke: 2px black;
+  paint-order: stroke fill;
+}

@@ -1,7 +1,22 @@
+/**
+ * UnitSystem - Unit Behavior Management System
+ * 
+ * This module provides a component-based behavior system for game units.
+ * Currently, the GameEngine handles unit logic directly for simplicity.
+ * These classes are preserved for future refactoring to a more modular
+ * entity-component system (ECS) architecture.
+ * 
+ * @see GameEngine.ts for the current active implementation
+ */
+
 import { GameUnit, Faction, UnitType } from '../types';
 import { SpatialGrid } from './SpatialGrid';
 import { GATHERER_CARRY_AMOUNT } from '../constants';
 
+/**
+ * Abstract base class for unit behaviors.
+ * Extend this to create custom unit AI patterns.
+ */
 export abstract class UnitBehavior {
   protected unit: GameUnit;
   protected spatialGrid: SpatialGrid;
@@ -40,7 +55,7 @@ export abstract class UnitBehavior {
     return now - this.unit.lastAttackTime >= this.unit.attackSpeed;
   }
 
-  attack(target: GameUnit): void {
+  attack(_target: GameUnit): void {
     if (this.canAttack()) {
       this.unit.lastAttackTime = Date.now();
       this.unit.isAttacking = true;
@@ -58,7 +73,7 @@ export class GathererBehavior extends UnitBehavior {
     this.centerLaneIndex = centerLaneIndex;
   }
 
-  update(deltaTime: number): void {
+  update(_deltaTime: number): void {
     // Gatherers only work in the center lane
     if (this.unit.lane !== this.centerLaneIndex) return;
 
@@ -114,7 +129,7 @@ export class GathererBehavior extends UnitBehavior {
     return null;
   }
 
-  performAction(target: GameUnit | null, deltaTime: number): void {
+  performAction(_target: GameUnit | null, _deltaTime: number): void {
     // Gatherers don't perform combat actions
     this.unit.isAttacking = false;
   }
@@ -127,12 +142,12 @@ export class GathererBehavior extends UnitBehavior {
 export class CombatBehavior extends UnitBehavior {
   private target: GameUnit | null = null;
 
-  update(deltaTime: number): void {
+  update(_deltaTime: number): void {
     // Find or update target
     this.target = this.findTarget();
 
     if (this.target && this.isInRange(this.target)) {
-      this.performAction(this.target, deltaTime);
+      this.performAction(this.target, _deltaTime);
     } else {
       this.moveTowardsTarget();
       this.unit.isAttacking = false;
@@ -143,7 +158,7 @@ export class CombatBehavior extends UnitBehavior {
     return this.spatialGrid.findTarget(this.unit);
   }
 
-  performAction(target: GameUnit | null, deltaTime: number): void {
+  performAction(target: GameUnit | null, _deltaTime: number): void {
     if (target && this.isInRange(target)) {
       this.attack(target);
     } else {

@@ -1,0 +1,7 @@
+/* Custom animations - import first before Tailwind layers */
+@import './animations.css';
+
+/* Tailwind CSS Imports */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

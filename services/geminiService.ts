@@ -12,8 +12,57 @@ try {
   console.warn("Gemini Client initialization failed", error);
 }
 
-const getRandomFallback = () => {
+// Rate limiting configuration
+const RATE_LIMIT = {
+  MIN_INTERVAL_MS: 3000, // Minimum 3 seconds between API calls
+  MAX_CALLS_PER_MINUTE: 10,
+  callTimestamps: [] as number[],
+  lastCallTime: 0,
+};
+
+const isRateLimited = (): boolean => {
+  const now = Date.now();
+  
+  // Check minimum interval
+  if (now - RATE_LIMIT.lastCallTime < RATE_LIMIT.MIN_INTERVAL_MS) {
+    return true;
+  }
+  
+  // Clean up old timestamps (older than 1 minute)
+  RATE_LIMIT.callTimestamps = RATE_LIMIT.callTimestamps.filter(
+    timestamp => now - timestamp < 60000
+  );
+  
+  // Check calls per minute
+  if (RATE_LIMIT.callTimestamps.length >= RATE_LIMIT.MAX_CALLS_PER_MINUTE) {
+    return true;
+  }
+  
+  return false;
+};
+
+const recordApiCall = (): void => {
+  const now = Date.now();
+  RATE_LIMIT.lastCallTime = now;
+  RATE_LIMIT.callTimestamps.push(now);
+};
+
+const getRandomFallback = (): string => {
   return FALLBACK_QUOTES[Math.floor(Math.random() * FALLBACK_QUOTES.length)];
+};
+
+const isQuotaError = (error: unknown): boolean => {
+  if (!error || typeof error !== 'object') return false;
+  
+  const err = error as Record<string, unknown>;
+  const errString = JSON.stringify(error);
+  
+  return (
+    err.status === 429 || 
+    err.status === 'RESOURCE_EXHAUSTED' ||
+    errString.includes('429') ||
+    errString.includes('RESOURCE_EXHAUSTED')
+  );
 };
 
 export const generateBattleCommentary = async (
@@ -21,7 +70,8 @@ export const generateBattleCommentary = async (
   recentAction: string,
   territory: number
 ): Promise<string> => {
-  if (!ai) {
+  // Early return if no AI client or rate limited
+  if (!ai || isRateLimited()) {
     return getRandomFallback();
   }
 
@@ -35,6 +85,8 @@ export const generateBattleCommentary = async (
   `;
 
   try {
+    recordApiCall();
+    
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
@@ -44,16 +96,8 @@ export const generateBattleCommentary = async (
       }
     });
     return response.text || getRandomFallback();
-  } catch (error: any) {
-    // Robustly handle 429/Resource Exhausted errors by checking various error properties
-    const errString = JSON.stringify(error);
-    const isQuotaError = 
-        error?.status === 429 || 
-        error?.status === 'RESOURCE_EXHAUSTED' ||
-        errString.includes('429') ||
-        errString.includes('RESOURCE_EXHAUSTED');
-
-    if (isQuotaError) {
+  } catch (error: unknown) {
+    if (isQuotaError(error)) {
       console.warn("Gemini API Quota Exceeded. Switching to local commentary fallbacks.");
     } else {
       console.error("Gemini API Error:", error);
@@ -63,8 +107,11 @@ export const generateBattleCommentary = async (
 };
 
 export const generateVictoryMessage = async (winner: Faction): Promise<string> => {
-   if (!ai) {
-    return `${winner} have conquered the backyard!`;
+  const fallbackMessage = `The ${winner} Colony reigns supreme! The backyard is theirs!`;
+  
+  // Early return if no AI client or rate limited
+  if (!ai || isRateLimited()) {
+    return fallbackMessage;
   }
 
   const prompt = `
@@ -73,22 +120,19 @@ export const generateVictoryMessage = async (winner: Faction): Promise<string> =
   `;
 
   try {
+    recordApiCall();
+    
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
     });
     return response.text || `${winner} Wins!`;
-  } catch (error: any) {
-    const errString = JSON.stringify(error);
-    const isQuotaError = 
-        error?.status === 429 || 
-        error?.status === 'RESOURCE_EXHAUSTED' ||
-        errString.includes('429') ||
-        errString.includes('RESOURCE_EXHAUSTED');
-
-    if (isQuotaError) {
-        console.warn("Gemini API Quota Exceeded for Victory Message. Using fallback.");
+  } catch (error: unknown) {
+    if (isQuotaError(error)) {
+      console.warn("Gemini API Quota Exceeded for Victory Message. Using fallback.");
+    } else {
+      console.error("Gemini API Error:", error);
     }
-    return `The ${winner} Colony reigns supreme! The backyard is theirs!`;
+    return fallbackMessage;
   }
 };
