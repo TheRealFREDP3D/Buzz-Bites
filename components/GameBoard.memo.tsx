@@ -114,11 +114,15 @@ const LaneRender = memo(({
   }, [laneIndex, onLaneClick]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!selectedUnit || !isValidLane) {
+      return;
+    }
+
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       onLaneClick(laneIndex);
     }
-  }, [laneIndex, onLaneClick]);
+  }, [laneIndex, onLaneClick, isValidLane, selectedUnit]);
 
   const laneUnits = useMemo(() => units, [units]);
   
@@ -129,9 +133,9 @@ const LaneRender = memo(({
   return (
     <div 
       role="button"
-      tabIndex={selectedUnit && isValidLane ? 0 : -1}
+      tabIndex={0}
       aria-label={laneDescription}
-      aria-disabled={selectedUnit ? !isValidLane : undefined}
+      aria-disabled={!selectedUnit || !isValidLane}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       className={`

@@ -63,7 +63,7 @@ export function ErrorBoundary({ children, fallback, onError }: Props) {
               Something went wrong in the backyard battle. The game encountered an unexpected error.
             </p>
             
-            {process.env.NODE_ENV === 'development' && error && (
+            {import.meta.env.DEV && error && (
               <details className="text-left bg-gray-100 p-4 rounded mb-6">
                 <summary className="cursor-pointer font-semibold text-gray-700">
                   Error Details (Development Only)

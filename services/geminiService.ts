@@ -47,6 +47,12 @@ const recordApiCall = (): void => {
   RATE_LIMIT.callTimestamps.push(now);
 };
 
+// Reset rate limiting state - useful for testing
+export const resetRateLimit = (): void => {
+  RATE_LIMIT.callTimestamps = [];
+  RATE_LIMIT.lastCallTime = 0;
+};
+
 const getRandomFallback = (): string => {
   return FALLBACK_QUOTES[Math.floor(Math.random() * FALLBACK_QUOTES.length)];
 };
@@ -55,13 +61,20 @@ const isQuotaError = (error: unknown): boolean => {
   if (!error || typeof error !== 'object') return false;
   
   const err = error as Record<string, unknown>;
-  const errString = JSON.stringify(error);
+  let errMessage: string;
+  
+  try {
+    errMessage = error instanceof Error ? error.message : JSON.stringify(error);
+  } catch {
+    // JSON.stringify can fail with circular references
+    errMessage = String(error);
+  }
   
   return (
     err.status === 429 || 
     err.status === 'RESOURCE_EXHAUSTED' ||
-    errString.includes('429') ||
-    errString.includes('RESOURCE_EXHAUSTED')
+    errMessage.includes('429') ||
+    errMessage.includes('RESOURCE_EXHAUSTED')
   );
 };
 

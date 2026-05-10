@@ -85,11 +85,10 @@ describe('GameEngine', () => {
 
       const result = engine.update(stateWithAnt, 50);
       
-      // Check if win condition would trigger when health drops to 0
-      if (result.beeBaseHealth <= 0) {
-        expect(result.gameActive).toBe(false);
-        expect(result.winner).toBe(Faction.ANTS);
-      }
+      // Should trigger win condition when health drops to 0
+      expect(result.beeBaseHealth).toBeLessThanOrEqual(0);
+      expect(result.gameActive).toBe(false);
+      expect(result.winner).toBe(Faction.ANTS);
     });
 
     it('should declare BEES winner when ant base health reaches 0', () => {
@@ -107,11 +106,10 @@ describe('GameEngine', () => {
 
       const result = engine.update(stateWithBee, 50);
       
-      // Check if win condition would trigger when health drops to 0
-      if (result.antBaseHealth <= 0) {
-        expect(result.gameActive).toBe(false);
-        expect(result.winner).toBe(Faction.BEES);
-      }
+      // Should trigger win condition when health drops to 0
+      expect(result.antBaseHealth).toBeLessThanOrEqual(0);
+      expect(result.gameActive).toBe(false);
+      expect(result.winner).toBe(Faction.BEES);
     });
   });
 });

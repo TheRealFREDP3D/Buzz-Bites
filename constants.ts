@@ -1,6 +1,6 @@
-import { Unit, UnitType, FoodItem } from './types';
+import { FoodItem, Unit, UnitType } from './types';
 
-// Re-export constants from centralized location
+// Re-export core config/constants only
 export {
   GAME_TICK_MS,
   LANE_COUNT,
@@ -14,19 +14,6 @@ export {
   RESOURCES,
   COMBAT,
   AI,
-  validateLane,
-  validatePosition,
-  isCenterLane,
-  isResourceLane,
-  isCombatLane,
-  getCombatLanes,
-  calculateUpgradeCost,
-  calculateStatMultiplier,
-  calculateDefensiveBonus,
-  calculateDamageMultiplier,
-  formatTime,
-  generateUniqueId,
-  validateUnitPlacement,
 } from './utils/gameConstants';
 
 // Legacy constants for backward compatibility

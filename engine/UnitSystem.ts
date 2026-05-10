@@ -200,7 +200,7 @@ export class UnitSystem {
 
     // Clean up behaviors for dead units
     const aliveUnitIds = new Set(units.map(u => u.instanceId));
-    for (const [unitId, behavior] of this.unitBehaviors) {
+    for (const [unitId] of this.unitBehaviors) {
       if (!aliveUnitIds.has(unitId)) {
         this.unitBehaviors.delete(unitId);
       }

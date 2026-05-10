@@ -1,4 +1,4 @@
-import { GameState, Faction, UnitType, GameUnit, Unit, LogEntry } from '../types';
+import { GameState, Faction, UnitType, GameUnit, LogEntry } from '../types';
 import { BEE_UNITS, ANT_UNITS, UPGRADE_STAT_INCREASE } from '../constants';
 import { BASE_HEALTH, FOOD_ITEMS } from '../constants';
 

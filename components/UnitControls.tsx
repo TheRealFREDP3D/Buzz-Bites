@@ -25,14 +25,13 @@ export const UnitControls: React.FC<UnitControlsProps> = ({
     <div 
       className="p-4 rounded-xl border-4 border-yellow-500 bg-yellow-100 shadow-lg"
       role="region"
-      aria-label="Unit recruitment and upgrades panel"
+      aria-labelledby="unit-controls-heading"
     >
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-2xl text-yellow-800 comic-font" id="unit-controls-heading">RECRUITMENT & UPGRADES</h3>
         <div 
           className="text-sm font-bold text-yellow-900 bg-yellow-300 px-3 py-1 rounded-full border border-yellow-600"
           aria-live="polite"
-          aria-label={`Total army size: ${beeArmyCount} units`}
         >
            Total Army: {beeArmyCount}
         </div>

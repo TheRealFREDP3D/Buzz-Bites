@@ -1,5 +1,5 @@
-import { GameState, Faction, UnitType, GameUnit, LogEntry } from '../types';
-import { BEE_UNITS, ANT_UNITS, GAME_TICK_MS, BASE_HEALTH, LANE_COUNT, UPGRADE_STAT_INCREASE, UPGRADE_COST_INCREASE, FOOD_ITEMS, GATHERER_CARRY_AMOUNT } from '../constants';
+import { GameState, Faction, UnitType, GameUnit } from '../types';
+import { BEE_UNITS, ANT_UNITS, LANE_COUNT, UPGRADE_STAT_INCREASE, GATHERER_CARRY_AMOUNT } from '../constants';
 import { SpatialGrid } from './SpatialGrid';
 
 export interface GameEngineConfig {
@@ -28,7 +28,6 @@ export const DEFAULT_ENGINE_CONFIG: GameEngineConfig = {
 
 export class GameEngine {
   private config: GameEngineConfig;
-  private lastUpdateTime: number = 0;
   private spatialGrid: SpatialGrid;
 
   constructor(config: GameEngineConfig = DEFAULT_ENGINE_CONFIG) {
@@ -37,18 +36,16 @@ export class GameEngine {
   }
 
   reset(): void {
-    this.lastUpdateTime = 0;
     this.spatialGrid = new SpatialGrid(this.config.stackingProximityThreshold);
   }
 
-  update(currentState: GameState, deltaTime: number): GameState {
+  update(currentState: GameState, _deltaTime: number): GameState {
     const { 
       beeResources, antResources, 
       beeBaseHealth, antBaseHealth, 
       units, 
-      gameActive, winner,
-      lastCommentaryTime,
-      centerFoodItem
+      gameActive,
+      lastCommentaryTime
     } = currentState;
 
     if (!gameActive) return currentState;
@@ -56,7 +53,6 @@ export class GameEngine {
     const now = Date.now();
     const baseDamageAccumulator = { bee: 0, ant: 0 };
     const nextUnits: GameUnit[] = [];
-    const deadUnits: GameUnit[] = [];
     const centerLaneIndex = Math.floor(LANE_COUNT / 2);
 
     // 1. Resource Generation (Passive + Unit based)
@@ -128,10 +124,10 @@ export class GameEngine {
   private processGatherer(
     unit: GameUnit, 
     faction: Faction, 
-    centerLaneIndex: number, 
-    beeResources: number, 
-    antResources: number, 
-    nextUnits: GameUnit[]
+    _centerLaneIndex: number, 
+    _beeResources: number, 
+    _antResources: number, 
+    _nextUnits: GameUnit[]
   ): { updatedUnit: GameUnit; beeResourcesDelta: number; antResourcesDelta: number } {
     let beeResourcesDelta = 0;
     let antResourcesDelta = 0;
@@ -307,7 +303,6 @@ export class GameEngine {
 
     // Count existing units
     const antGatherers = livingUnits.filter(u => u.faction === Faction.ANTS && u.type === UnitType.GATHERER).length;
-    const totalAnts = livingUnits.filter(u => u.faction === Faction.ANTS).length;
 
     // AI Strategy
     const needsEconomy = antGatherers === 0 || (antResources < 50 && antGatherers < 3);
