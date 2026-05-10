@@ -1,0 +1,13 @@
+/* Game Animation Styles */
+
+/* Comic font style */
+.comic-font {
+  font-family: 'Comic Sans MS', 'Chalkboard', 'ChalkboardSE-Regular', cursive;
+  font-weight: bold;
+}
+
+/* Text stroke effect for headers */
+.text-stroke-2 {
+  -webkit-text-stroke: 2px black;
+  paint-order: stroke fill;
+}

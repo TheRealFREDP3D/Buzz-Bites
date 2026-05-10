@@ -1,8 +1,7 @@
 import React, { useReducer, useCallback, useRef, useEffect } from 'react';
-import { GameState, Faction, UnitType, GameUnit } from '../types';
+import { GameState, Faction, UnitType } from '../types';
 import { gameReducer, initialGameState, GameStateActions, GameStateSelectors } from '../engine/GameStateReducer';
 import { GameEngine, DEFAULT_ENGINE_CONFIG } from '../engine/GameEngine';
-import { UnitSystem } from '../engine/UnitSystem';
 import { BEE_UNITS, ANT_UNITS, GAME_TICK_MS, LANE_COUNT, UPGRADE_COST_INCREASE, UPGRADE_STAT_INCREASE } from '../constants';
 
 export interface GameStateReturn {
@@ -28,7 +27,6 @@ export function useGameState(): GameStateReturn {
   const [gameState, dispatch] = useReducer(gameReducer, initialGameState);
   const gameStateRef = useRef(gameState);
   const gameEngineRef = useRef(new GameEngine(DEFAULT_ENGINE_CONFIG));
-  const unitSystemRef = useRef(new UnitSystem(Math.floor(LANE_COUNT / 2)));
   const lastUpdateRef = useRef(Date.now());
 
   // Update ref on each render to keep it current
