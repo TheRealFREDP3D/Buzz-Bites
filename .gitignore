@@ -31,3 +31,5 @@ dist-ssr
 .github\instructions\codacy.instructions.md
 /_DEV
 /.codeboarding
+/.kiro
+/.codeviz
