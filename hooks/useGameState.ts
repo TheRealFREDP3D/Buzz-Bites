@@ -2,6 +2,7 @@ import React, { useReducer, useCallback, useRef, useEffect } from 'react';
 import { GameState, Faction, UnitType } from '../types';
 import { gameReducer, initialGameState, GameStateActions, GameStateSelectors } from '../engine/GameStateReducer';
 import { GameEngine, DEFAULT_ENGINE_CONFIG } from '../engine/GameEngine';
+import { difficultyScaler } from '../engine/difficultyScaler';
 import { BEE_UNITS, ANT_UNITS, GAME_TICK_MS, LANE_COUNT, UPGRADE_COST_INCREASE, UPGRADE_STAT_INCREASE } from '../constants';
 
 export interface GameStateReturn {
@@ -16,11 +17,17 @@ export interface GameStateReturn {
   selectUnit: (unitType: UnitType | null) => void;
   addLog: (text: string, faction?: Faction) => void;
   restartGame: () => void;
+  advanceLevel: () => void;
+  startNextLevel: () => void;
   
   // Derived state
   canAffordUnit: (cost: number, faction: Faction) => boolean;
   getUpgradeCost: (unitType: UnitType) => number;
   getUnitCount: (faction?: Faction) => number;
+  
+  // Level and phase
+  currentLevel: number;
+  gamePhase: 'playing' | 'level_victory' | 'game_over';
 }
 
 export function useGameState(): GameStateReturn {
@@ -36,7 +43,7 @@ export function useGameState(): GameStateReturn {
 
   // Game loop
   useEffect(() => {
-    if (!gameState.gameActive) return;
+    if (gameState.gamePhase !== 'playing') return;
 
     const interval = setInterval(() => {
       const now = Date.now();
@@ -59,6 +66,7 @@ export function useGameState(): GameStateReturn {
           units: updatedState.units,
           gameActive: updatedState.gameActive,
           winner: updatedState.winner,
+          gamePhase: updatedState.gamePhase,
           triggerCommentaryForEvent: updatedState.triggerCommentaryForEvent,
           lastCommentaryTime: updatedState.lastCommentaryTime
         }));
@@ -66,7 +74,7 @@ export function useGameState(): GameStateReturn {
     }, GAME_TICK_MS);
 
     return () => clearInterval(interval);
-  }, [gameState.gameActive]);
+  }, [gameState.gamePhase]);
 
   // Game actions
   const spawnUnit = useCallback((faction: Faction, unitType: UnitType, lane: number) => {
@@ -141,6 +149,17 @@ export function useGameState(): GameStateReturn {
     dispatch(GameStateActions.restartGame());
   }, []);
 
+  const advanceLevel = useCallback(() => {
+    const nextLevel = gameState.currentLevel + 1;
+    const newConfig = difficultyScaler(nextLevel);
+    gameEngineRef.current = new GameEngine(newConfig);
+    dispatch(GameStateActions.advanceLevel());
+  }, [gameState.currentLevel]);
+
+  const startNextLevel = useCallback(() => {
+    dispatch(GameStateActions.startNextLevel());
+  }, []);
+
   // Derived state helpers
   const canAffordUnit = useCallback((cost: number, faction: Faction) => {
     return GameStateSelectors.canAffordUnit(gameState, cost, faction);
@@ -167,9 +186,14 @@ export function useGameState(): GameStateReturn {
     selectUnit,
     addLog,
     restartGame,
+    advanceLevel,
+    startNextLevel,
     
     canAffordUnit,
     getUpgradeCost,
-    getUnitCount
+    getUnitCount,
+    
+    currentLevel: gameState.currentLevel,
+    gamePhase: gameState.gamePhase
   };
 }

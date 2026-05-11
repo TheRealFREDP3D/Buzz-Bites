@@ -44,6 +44,8 @@ export interface FoodItem {
   emoji: string;
 }
 
+export type GamePhase = 'playing' | 'level_victory' | 'game_over';
+
 export interface GameState {
   beeResources: number;
   antResources: number;
@@ -51,6 +53,8 @@ export interface GameState {
   antBaseHealth: number;
   units: GameUnit[];
   unitLevels: Record<UnitType, number>;
+  currentLevel: number;
+  gamePhase: GamePhase;
   gameActive: boolean;
   winner: Faction | null;
   logs: LogEntry[];

@@ -1,4 +1,4 @@
-import { GameState, Faction, UnitType, GameUnit, LogEntry } from '../types';
+import { GameState, GamePhase, Faction, UnitType, GameUnit, LogEntry } from '../types';
 import { BEE_UNITS, ANT_UNITS, UPGRADE_STAT_INCREASE } from '../constants';
 import { BASE_HEALTH, FOOD_ITEMS } from '../constants';
 
@@ -14,6 +14,8 @@ export type GameStateAction =
   | { type: 'UPDATE_COMMENTARY'; payload: { commentary: string; isLoading?: boolean } }
   | { type: 'END_GAME'; payload: { winner: Faction } }
   | { type: 'RESTART_GAME' }
+  | { type: 'ADVANCE_LEVEL' }
+  | { type: 'START_NEXT_LEVEL' }
   | { type: 'GAME_TICK_UPDATE'; payload: Partial<GameState> };
 
 export const initialGameState: GameState = {
@@ -29,6 +31,8 @@ export const initialGameState: GameState = {
     [UnitType.ELITE]: 1,
     [UnitType.SPECIAL]: 1,
   },
+  currentLevel: 1,
+  gamePhase: 'playing' as GamePhase,
   gameActive: true,
   winner: null,
   logs: [{ id: 0, text: "Welcome to the Backyard Brawl! Place units to defend the hive!", timestamp: Date.now() }],
@@ -139,7 +143,8 @@ export function gameReducer(state: GameState, action: GameStateAction): GameStat
       return {
         ...state,
         gameActive: false,
-        winner: action.payload.winner
+        winner: action.payload.winner,
+        gamePhase: action.payload.winner === Faction.BEES ? 'level_victory' : 'game_over',
       };
     }
 
@@ -147,9 +152,9 @@ export function gameReducer(state: GameState, action: GameStateAction): GameStat
       return {
         ...initialGameState,
         logs: [{ id: Date.now(), text: "A new battle begins! Fight!", timestamp: Date.now() }],
-        commentary: "Round 2! Ding Ding!",
+        commentary: "Round 1! Ding Ding!",
         lastCommentaryTime: Date.now(),
-        centerFoodItem: FOOD_ITEMS[Math.floor(Math.random() * FOOD_ITEMS.length)]
+        centerFoodItem: FOOD_ITEMS[Math.floor(Math.random() * FOOD_ITEMS.length)],
       };
     }
 
@@ -157,6 +162,30 @@ export function gameReducer(state: GameState, action: GameStateAction): GameStat
       return {
         ...state,
         ...action.payload
+      };
+    }
+
+    case 'ADVANCE_LEVEL': {
+      const nextLevel = state.currentLevel + 1;
+      return {
+        ...initialGameState,
+        currentLevel: nextLevel,
+        gamePhase: 'level_victory' as GamePhase,
+        gameActive: false,
+        unitLevels: state.unitLevels,
+        logs: [{ id: Date.now(), text: `Level ${nextLevel - 1} complete! Prepare for Level ${nextLevel}!`, timestamp: Date.now() }],
+        commentary: `Level ${nextLevel - 1} complete!`,
+        lastCommentaryTime: Date.now(),
+        centerFoodItem: FOOD_ITEMS[Math.floor(Math.random() * FOOD_ITEMS.length)],
+      };
+    }
+
+    case 'START_NEXT_LEVEL': {
+      return {
+        ...state,
+        gamePhase: 'playing',
+        gameActive: true,
+        winner: null,
       };
     }
 
@@ -278,6 +307,14 @@ export const GameStateActions = {
 
   restartGame: (): GameStateAction => ({
     type: 'RESTART_GAME'
+  }),
+
+  advanceLevel: (): GameStateAction => ({
+    type: 'ADVANCE_LEVEL'
+  }),
+
+  startNextLevel: (): GameStateAction => ({
+    type: 'START_NEXT_LEVEL'
   }),
 
   gameTickUpdate: (updates: Partial<GameState>): GameStateAction => ({
