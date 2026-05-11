@@ -9,7 +9,6 @@ describe('VictoryModal', () => {
       const { container } = render(
         <VictoryModal
           gamePhase="playing"
-          currentLevel={1}
           completedLevel={1}
           message=""
           onNextLevel={() => {}}
@@ -23,7 +22,6 @@ describe('VictoryModal', () => {
       render(
         <VictoryModal
           gamePhase="level_victory"
-          currentLevel={2}
           completedLevel={1}
           message="Great job!"
           onNextLevel={() => {}}
@@ -37,7 +35,6 @@ describe('VictoryModal', () => {
       render(
         <VictoryModal
           gamePhase="level_victory"
-          currentLevel={2}
           completedLevel={1}
           message="Great job!"
           onNextLevel={() => {}}
@@ -51,7 +48,6 @@ describe('VictoryModal', () => {
       render(
         <VictoryModal
           gamePhase="game_over"
-          currentLevel={1}
           completedLevel={3}
           message=""
           onNextLevel={() => {}}
@@ -65,7 +61,6 @@ describe('VictoryModal', () => {
       render(
         <VictoryModal
           gamePhase="game_over"
-          currentLevel={1}
           completedLevel={5}
           message=""
           onNextLevel={() => {}}
@@ -79,7 +74,6 @@ describe('VictoryModal', () => {
       render(
         <VictoryModal
           gamePhase="game_over"
-          currentLevel={1}
           completedLevel={3}
           message=""
           onNextLevel={() => {}}
@@ -96,7 +90,6 @@ describe('VictoryModal', () => {
       render(
         <VictoryModal
           gamePhase="level_victory"
-          currentLevel={2}
           completedLevel={1}
           message=""
           onNextLevel={onNextLevel}
@@ -112,7 +105,6 @@ describe('VictoryModal', () => {
       render(
         <VictoryModal
           gamePhase="game_over"
-          currentLevel={1}
           completedLevel={3}
           message=""
           onNextLevel={() => {}}
@@ -139,7 +131,6 @@ describe('VictoryModal — property-based tests', () => {
         const { container } = render(
           <VictoryModal
             gamePhase="level_victory"
-            currentLevel={n + 1}
             completedLevel={n}
             message=""
             onNextLevel={() => {}}

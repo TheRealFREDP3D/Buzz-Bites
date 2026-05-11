@@ -37,6 +37,7 @@ export class GameEngine {
 
   reset(): void {
     this.spatialGrid = new SpatialGrid(this.config.stackingProximityThreshold);
+    this.config = DEFAULT_ENGINE_CONFIG;
   }
 
   update(currentState: GameState, _deltaTime: number): GameState {

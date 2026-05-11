@@ -17,13 +17,14 @@ const App: React.FC = () => {
     upgradeUnit,
     selectUnit,
     restartGame,
-    advanceLevel,
-    startNextLevel,
+    goToNextLevel,
     canAffordUnit,
     getUpgradeCost,
     getUnitCount,
     currentLevel,
-    gamePhase
+    gamePhase,
+    isPlaying,
+    selectedUnit
   } = useGameState();
 
   const { handleCommentaryTrigger } = useCommentary(
@@ -33,23 +34,18 @@ const App: React.FC = () => {
       console.log('Commentary:', commentary, 'Loading:', isLoading);
     },
     gameState.triggerCommentaryForEvent,
-    gameState.gameActive,
+    isPlaying,
     gameState.winner,
     gameState.beeBaseHealth,
     gameState.antBaseHealth
   );
 
   // Event handlers - memoized for performance
-  const handleNextLevel = useCallback(() => {
-    advanceLevel();
-    startNextLevel();
-  }, [advanceLevel, startNextLevel]);
-
   const handleLaneClick = useCallback((laneIndex: number) => {
-    if (!gameState.gameActive || !gameState.selectedUnit) return;
+    if (!isPlaying || !selectedUnit) return;
     
-    spawnUnit(Faction.BEES, gameState.selectedUnit, laneIndex);
-  }, [gameState.gameActive, gameState.selectedUnit, spawnUnit]);
+    spawnUnit(Faction.BEES, selectedUnit, laneIndex);
+  }, [isPlaying, selectedUnit, spawnUnit]);
 
   const handleUnitSelect = useCallback((type: UnitType) => {
     selectUnit(type);
@@ -77,7 +73,7 @@ const App: React.FC = () => {
             </h1>
             <div className="flex flex-col items-end gap-1">
               <span className="bg-yellow-400 text-black font-bold px-3 py-1 rounded-full comic-font text-lg shadow">
-                LEVEL {gameState.currentLevel}
+                LEVEL {currentLevel}
               </span>
               <div className="text-white font-mono text-sm opacity-80 text-right">
                 Resource Corridor Edition<br/>
@@ -149,13 +145,12 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <VictoryModal 
+      <VictoryModal
         gamePhase={gameState.gamePhase}
-        currentLevel={gameState.currentLevel + 1}
         completedLevel={gameState.currentLevel}
-        message={gameState.commentary} 
-        onNextLevel={handleNextLevel}
-        onRestart={restartGame} 
+        message={gameState.commentary}
+        onNextLevel={goToNextLevel}
+        onRestart={restartGame}
       />
     </div>
   );

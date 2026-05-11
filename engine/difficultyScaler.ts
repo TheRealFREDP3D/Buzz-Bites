@@ -1,4 +1,5 @@
 import { GameEngineConfig, DEFAULT_ENGINE_CONFIG } from './GameEngine';
+import { GAME_CONFIG } from '../utils/gameConstants';
 
 export interface DifficultyConfig extends GameEngineConfig {}
 
@@ -12,10 +13,10 @@ export function difficultyScaler(level: number): DifficultyConfig {
 
   return {
     ...DEFAULT_ENGINE_CONFIG,
-    aiSpawnChance:       clamp(DEFAULT_ENGINE_CONFIG.aiSpawnChance       + levelsAboveBase * 0.01, 0, 0.25),
-    aiEconomyPriority:   clamp(DEFAULT_ENGINE_CONFIG.aiEconomyPriority   + levelsAboveBase * 0.05, 0, 0.95),
-    aiEliteUnitChance:   clamp(DEFAULT_ENGINE_CONFIG.aiEliteUnitChance   + levelsAboveBase * 0.03, 0, 0.70),
-    aiSpecialUnitChance: clamp(DEFAULT_ENGINE_CONFIG.aiSpecialUnitChance + levelsAboveBase * 0.02, 0, 0.50),
+    aiSpawnChance:       clamp(DEFAULT_ENGINE_CONFIG.aiSpawnChance       + levelsAboveBase * GAME_CONFIG.DIFFICULTY_AI_SPAWN_INCREMENT,     0, GAME_CONFIG.DIFFICULTY_AI_SPAWN_MAX),
+    aiEconomyPriority:   clamp(DEFAULT_ENGINE_CONFIG.aiEconomyPriority   + levelsAboveBase * GAME_CONFIG.DIFFICULTY_AI_ECONOMY_INCREMENT,  0, GAME_CONFIG.DIFFICULTY_AI_ECONOMY_MAX),
+    aiEliteUnitChance:   clamp(DEFAULT_ENGINE_CONFIG.aiEliteUnitChance   + levelsAboveBase * GAME_CONFIG.DIFFICULTY_AI_ELITE_INCREMENT,     0, GAME_CONFIG.DIFFICULTY_AI_ELITE_MAX),
+    aiSpecialUnitChance: clamp(DEFAULT_ENGINE_CONFIG.aiSpecialUnitChance + levelsAboveBase * GAME_CONFIG.DIFFICULTY_AI_SPECIAL_INCREMENT,   0, GAME_CONFIG.DIFFICULTY_AI_SPECIAL_MAX),
   };
 }
 
