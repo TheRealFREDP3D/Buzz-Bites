@@ -1,7 +1,8 @@
 import React, { useReducer, useCallback, useRef, useEffect } from 'react';
-import { GameState, Faction, UnitType } from '../types';
+import { GameState, Faction, UnitType, GamePhase } from '../types';
 import { gameReducer, initialGameState, GameStateActions, GameStateSelectors } from '../engine/GameStateReducer';
 import { GameEngine, DEFAULT_ENGINE_CONFIG } from '../engine/GameEngine';
+import { difficultyScaler } from '../engine/difficultyScaler';
 import { BEE_UNITS, ANT_UNITS, GAME_TICK_MS, LANE_COUNT, UPGRADE_COST_INCREASE, UPGRADE_STAT_INCREASE } from '../constants';
 
 export interface GameStateReturn {
@@ -16,11 +17,22 @@ export interface GameStateReturn {
   selectUnit: (unitType: UnitType | null) => void;
   addLog: (text: string, faction?: Faction) => void;
   restartGame: () => void;
+  advanceLevel: () => void;
+  startNextLevel: () => void;
+  goToNextLevel: () => void;
   
   // Derived state
   canAffordUnit: (cost: number, faction: Faction) => boolean;
   getUpgradeCost: (unitType: UnitType) => number;
   getUnitCount: (faction?: Faction) => number;
+  
+  // Level and phase
+  currentLevel: number;
+  gamePhase: GamePhase;
+  
+  // Derived state
+  isPlaying: boolean;
+  selectedUnit: UnitType | null;
 }
 
 export function useGameState(): GameStateReturn {
@@ -34,9 +46,15 @@ export function useGameState(): GameStateReturn {
     gameStateRef.current = gameState;
   }, [gameState]);
 
+  // Derived state
+  const isPlaying = gameState.gamePhase === 'playing';
+
   // Game loop
   useEffect(() => {
-    if (!gameState.gameActive) return;
+    if (!isPlaying) return;
+
+    // Reset the last update time to avoid a huge deltaTime on the first tick of a new level
+    lastUpdateRef.current = Date.now();
 
     const interval = setInterval(() => {
       const now = Date.now();
@@ -59,6 +77,7 @@ export function useGameState(): GameStateReturn {
           units: updatedState.units,
           gameActive: updatedState.gameActive,
           winner: updatedState.winner,
+          gamePhase: updatedState.gamePhase,
           triggerCommentaryForEvent: updatedState.triggerCommentaryForEvent,
           lastCommentaryTime: updatedState.lastCommentaryTime
         }));
@@ -66,11 +85,11 @@ export function useGameState(): GameStateReturn {
     }, GAME_TICK_MS);
 
     return () => clearInterval(interval);
-  }, [gameState.gameActive]);
+  }, [isPlaying]);
 
   // Game actions
   const spawnUnit = useCallback((faction: Faction, unitType: UnitType, lane: number) => {
-    if (!gameState.gameActive) return;
+    if (!isPlaying) return;
 
     const unitStats = faction === Faction.BEES ? BEE_UNITS[unitType] : ANT_UNITS[unitType];
     const canAfford = GameStateSelectors.canAffordUnit(gameState, unitStats.cost, faction);
@@ -108,10 +127,10 @@ export function useGameState(): GameStateReturn {
     if (now - gameState.lastCommentaryTime > 8000) {
       dispatch(GameStateActions.triggerCommentary(`${faction === Faction.BEES ? 'Bees' : 'Ants'} deploy reinforcements in lane ${lane + 1}!`));
     }
-  }, [gameState]);
+  }, [isPlaying]);
 
   const upgradeUnit = useCallback((unitType: UnitType) => {
-    if (!gameState.gameActive) return;
+    if (!isPlaying) return;
 
     const unitStats = BEE_UNITS[unitType];
     const currentLevel = gameState.unitLevels[unitType];
@@ -126,20 +145,41 @@ export function useGameState(): GameStateReturn {
     dispatch(GameStateActions.upgradeUnit(unitType, cost, statMultiplier));
     dispatch(GameStateActions.addLog(`${unitStats.name} upgraded to Level ${currentLevel + 1}!`, Faction.BEES));
     dispatch(GameStateActions.triggerCommentary(`${unitStats.name}s just got stronger!`));
-  }, [gameState]);
+  }, [isPlaying]);
 
   const selectUnit = useCallback((unitType: UnitType | null) => {
-    if (!gameState.gameActive) return;
+    if (!isPlaying) return;
     dispatch(GameStateActions.selectUnit(unitType));
-  }, [gameState.gameActive]);
+  }, [isPlaying]);
 
   const addLog = useCallback((text: string, faction?: Faction) => {
     dispatch(GameStateActions.addLog(text, faction));
   }, []);
 
   const restartGame = useCallback(() => {
+    gameEngineRef.current.reset();
+    lastUpdateRef.current = Date.now();
     dispatch(GameStateActions.restartGame());
   }, []);
+
+  const advanceLevel = useCallback(() => {
+    const nextLevel = gameState.currentLevel + 1;
+    const newConfig = difficultyScaler(nextLevel);
+    gameEngineRef.current = new GameEngine(newConfig);
+    dispatch(GameStateActions.advanceLevel(nextLevel));
+  }, [gameState.currentLevel]);
+
+  const startNextLevel = useCallback(() => {
+    dispatch(GameStateActions.startNextLevel());
+  }, []);
+
+  const goToNextLevel = useCallback(() => {
+    const nextLevel = gameState.currentLevel + 1;
+    const newConfig = difficultyScaler(nextLevel);
+    gameEngineRef.current = new GameEngine(newConfig);
+    dispatch(GameStateActions.advanceLevel(nextLevel));
+    dispatch(GameStateActions.startNextLevel());
+  }, [gameState.currentLevel]);
 
   // Derived state helpers
   const canAffordUnit = useCallback((cost: number, faction: Faction) => {
@@ -167,9 +207,17 @@ export function useGameState(): GameStateReturn {
     selectUnit,
     addLog,
     restartGame,
+    advanceLevel,
+    startNextLevel,
+    goToNextLevel,
     
     canAffordUnit,
     getUpgradeCost,
-    getUnitCount
+    getUnitCount,
+    
+    currentLevel: gameState.currentLevel,
+    gamePhase: gameState.gamePhase,
+    isPlaying: gameState.gamePhase === 'playing',
+    selectedUnit: gameState.selectedUnit
   };
 }

@@ -1,4 +1,4 @@
-import { GameState, Faction, UnitType, GameUnit } from '../types';
+import { GameState, Faction, UnitType, GameUnit, GamePhase } from '../types';
 import { BEE_UNITS, ANT_UNITS, LANE_COUNT, UPGRADE_STAT_INCREASE, GATHERER_CARRY_AMOUNT } from '../constants';
 import { SpatialGrid } from './SpatialGrid';
 
@@ -37,6 +37,7 @@ export class GameEngine {
 
   reset(): void {
     this.spatialGrid = new SpatialGrid(this.config.stackingProximityThreshold);
+    this.config = DEFAULT_ENGINE_CONFIG;
   }
 
   update(currentState: GameState, _deltaTime: number): GameState {
@@ -103,9 +104,13 @@ export class GameEngine {
 
     // 8. Win Condition
     const { gameActive: newGameActive, winner: newWinner } = this.checkWinCondition(
-      beeBaseHealth - totalAntDamage, 
+      beeBaseHealth - totalAntDamage,
       antBaseHealth - totalBeeDamage
     );
+
+    let newGamePhase: GamePhase = 'playing';
+    if (newWinner === Faction.BEES) newGamePhase = 'level_victory';
+    else if (newWinner === Faction.ANTS) newGamePhase = 'game_over';
 
     return {
       ...currentState,
@@ -116,6 +121,7 @@ export class GameEngine {
       units: updatedUnits,
       gameActive: newGameActive,
       winner: newWinner,
+      gamePhase: newGamePhase,
       triggerCommentaryForEvent: triggerEvent || currentState.triggerCommentaryForEvent,
       lastCommentaryTime: triggerEvent ? now : lastCommentaryTime
     };

@@ -1,4 +1,4 @@
-import { GameState, Faction, UnitType, GameUnit, LogEntry } from '../types';
+import { GameState, GamePhase, Faction, UnitType, GameUnit, LogEntry } from '../types';
 import { BEE_UNITS, ANT_UNITS, UPGRADE_STAT_INCREASE } from '../constants';
 import { BASE_HEALTH, FOOD_ITEMS } from '../constants';
 
@@ -14,7 +14,33 @@ export type GameStateAction =
   | { type: 'UPDATE_COMMENTARY'; payload: { commentary: string; isLoading?: boolean } }
   | { type: 'END_GAME'; payload: { winner: Faction } }
   | { type: 'RESTART_GAME' }
+  | { type: 'ADVANCE_LEVEL'; payload: { level: number } }
+  | { type: 'START_NEXT_LEVEL' }
   | { type: 'GAME_TICK_UPDATE'; payload: Partial<GameState> };
+
+// Helper to build consistent level state
+function buildLevelState(params: {
+  level: number;
+  phase: GamePhase;
+  gameActive: boolean;
+  unitLevels?: Record<UnitType, number>;
+  logText: string;
+  commentary: string;
+}): GameState {
+  const now = Date.now();
+
+  return {
+    ...initialGameState,
+    currentLevel: params.level,
+    gamePhase: params.phase,
+    gameActive: params.gameActive,
+    unitLevels: params.unitLevels ?? initialGameState.unitLevels,
+    logs: [{ id: now, text: params.logText, timestamp: now }],
+    commentary: params.commentary,
+    lastCommentaryTime: now,
+    centerFoodItem: FOOD_ITEMS[Math.floor(Math.random() * FOOD_ITEMS.length)],
+  };
+}
 
 export const initialGameState: GameState = {
   beeResources: 50,
@@ -29,6 +55,8 @@ export const initialGameState: GameState = {
     [UnitType.ELITE]: 1,
     [UnitType.SPECIAL]: 1,
   },
+  currentLevel: 1,
+  gamePhase: 'playing' as GamePhase,
   gameActive: true,
   winner: null,
   logs: [{ id: 0, text: "Welcome to the Backyard Brawl! Place units to defend the hive!", timestamp: Date.now() }],
@@ -139,18 +167,19 @@ export function gameReducer(state: GameState, action: GameStateAction): GameStat
       return {
         ...state,
         gameActive: false,
-        winner: action.payload.winner
+        winner: action.payload.winner,
+        gamePhase: action.payload.winner === Faction.BEES ? 'level_victory' : 'game_over',
       };
     }
 
     case 'RESTART_GAME': {
-      return {
-        ...initialGameState,
-        logs: [{ id: Date.now(), text: "A new battle begins! Fight!", timestamp: Date.now() }],
-        commentary: "Round 2! Ding Ding!",
-        lastCommentaryTime: Date.now(),
-        centerFoodItem: FOOD_ITEMS[Math.floor(Math.random() * FOOD_ITEMS.length)]
-      };
+      return buildLevelState({
+        level: 1,
+        phase: 'playing',
+        gameActive: true,
+        logText: 'A new battle begins! Fight!',
+        commentary: 'Round 1! Ding Ding!',
+      });
     }
 
     case 'GAME_TICK_UPDATE': {
@@ -158,6 +187,28 @@ export function gameReducer(state: GameState, action: GameStateAction): GameStat
         ...state,
         ...action.payload
       };
+    }
+
+    case 'ADVANCE_LEVEL': {
+      const { level } = action.payload;
+      return buildLevelState({
+        level,
+        phase: 'level_victory',
+        gameActive: false,
+        unitLevels: state.unitLevels,
+        logText: `Level ${level - 1} complete! Prepare for Level ${level}!`,
+        commentary: `Level ${level - 1} complete!`,
+      });
+    }
+
+    case 'START_NEXT_LEVEL': {
+      return withPhase(
+        {
+          ...state,
+          winner: null,
+        },
+        'playing'
+      );
     }
 
     default:
@@ -203,8 +254,19 @@ function createNewUnit(
   };
 }
 
+// Helper to ensure gamePhase and gameActive stay in sync
+function withPhase(state: GameState, phase: GamePhase): GameState {
+  return {
+    ...state,
+    gamePhase: phase,
+    gameActive: phase === 'playing',
+  };
+}
+
 // Utility functions for common state operations
 export const GameStateSelectors = {
+  isGameActive: (state: GameState): boolean =>
+    state.gamePhase === 'playing',
   getUnitsByFaction: (state: GameState, faction: Faction): GameUnit[] => 
     state.units.filter(u => u.faction === faction),
   
@@ -278,6 +340,15 @@ export const GameStateActions = {
 
   restartGame: (): GameStateAction => ({
     type: 'RESTART_GAME'
+  }),
+
+  advanceLevel: (level: number): GameStateAction => ({
+    type: 'ADVANCE_LEVEL',
+    payload: { level }
+  }),
+
+  startNextLevel: (): GameStateAction => ({
+    type: 'START_NEXT_LEVEL'
   }),
 
   gameTickUpdate: (updates: Partial<GameState>): GameStateAction => ({

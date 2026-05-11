@@ -163,20 +163,23 @@ The game will be available at `http://localhost:3000`
 ### Project Structure
 ```
 Buzz-Bites/
-├── components/          # React UI components
-├── engine/            # Game engine and systems
+├── components/        # React UI components
+├── engine/            # Game engine, reducer, and systems
 ├── hooks/             # Custom React hooks
-├── types/             # TypeScript type definitions
-├── constants/         # Game constants and configuration
-├── utils/             # Utility functions
-└── public/            # Static assets
+├── utils/             # Game constants and utility functions
+├── __tests__/         # Unit and integration tests
+├── types.ts           # TypeScript type definitions
+├── constants.ts       # Game constants and unit stats
+└── App.tsx            # Main application component
 ```
 
 ### Key Files
-- `App.refactored.tsx` - Main game component
-- `engine/GameEngine.ts` - Core game logic
+- `App.tsx` - Main game component
+- `engine/GameEngine.ts` - Core game logic and AI
 - `engine/GameStateReducer.ts` - State management
+- `engine/difficultyScaler.ts` - Level difficulty scaling
 - `hooks/useGameState.ts` - Game state hook
+- `utils/gameConstants.ts` - Centralized game constants
 - `components/GameBoard.memo.tsx` - Optimized game board
 
 ### Build Process
@@ -219,28 +222,30 @@ For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)
 
 ## 🧪 Testing
 
-### Manual Testing
+### Automated Testing
 ```bash
-# Start development server
-npm run dev
+# Run tests once
+npm run test:run
 
-# Test game features:
-# 1. Unit deployment
-# 2. Resource gathering
-# 3. Combat mechanics
-# 4. AI behavior
-# 5. Victory conditions
+# Run tests in watch mode
+npm run test
+
+# Run tests with coverage
+npm run test:coverage
 ```
 
-### Build Testing
+### Build & Quality
 ```bash
 # Type checking
-npm run build
+npm run typecheck
 
 # Linting
-npm run lint  # if configured
+npm run lint
 
-# Preview production
+# Build for production
+npm run build
+
+# Preview production build
 npm run preview
 ```
 

@@ -17,9 +17,14 @@ const App: React.FC = () => {
     upgradeUnit,
     selectUnit,
     restartGame,
+    goToNextLevel,
     canAffordUnit,
     getUpgradeCost,
-    getUnitCount
+    getUnitCount,
+    currentLevel,
+    gamePhase,
+    isPlaying,
+    selectedUnit
   } = useGameState();
 
   const { handleCommentaryTrigger } = useCommentary(
@@ -29,7 +34,7 @@ const App: React.FC = () => {
       console.log('Commentary:', commentary, 'Loading:', isLoading);
     },
     gameState.triggerCommentaryForEvent,
-    gameState.gameActive,
+    isPlaying,
     gameState.winner,
     gameState.beeBaseHealth,
     gameState.antBaseHealth
@@ -37,10 +42,10 @@ const App: React.FC = () => {
 
   // Event handlers - memoized for performance
   const handleLaneClick = useCallback((laneIndex: number) => {
-    if (!gameState.gameActive || !gameState.selectedUnit) return;
+    if (!isPlaying || !selectedUnit) return;
     
-    spawnUnit(Faction.BEES, gameState.selectedUnit, laneIndex);
-  }, [gameState.gameActive, gameState.selectedUnit, spawnUnit]);
+    spawnUnit(Faction.BEES, selectedUnit, laneIndex);
+  }, [isPlaying, selectedUnit, spawnUnit]);
 
   const handleUnitSelect = useCallback((type: UnitType) => {
     selectUnit(type);
@@ -66,9 +71,14 @@ const App: React.FC = () => {
             <h1 className="text-5xl text-white comic-font drop-shadow-md stroke-black text-stroke-2">
               BUZZ <span className="text-yellow-400">vs</span> BITE
             </h1>
-            <div className="text-white font-mono text-sm opacity-80 text-right">
-              Resource Corridor Edition<br/>
-              Defend the Hive!
+            <div className="flex flex-col items-end gap-1">
+              <span className="bg-yellow-400 text-black font-bold px-3 py-1 rounded-full comic-font text-lg shadow">
+                LEVEL {currentLevel}
+              </span>
+              <div className="text-white font-mono text-sm opacity-80 text-right">
+                Resource Corridor Edition<br/>
+                Defend the Hive!
+              </div>
             </div>
          </div>
       </div>
@@ -135,10 +145,12 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <VictoryModal 
-        winner={gameState.winner} 
-        message={gameState.commentary} 
-        onRestart={restartGame} 
+      <VictoryModal
+        gamePhase={gameState.gamePhase}
+        completedLevel={gameState.currentLevel}
+        message={gameState.commentary}
+        onNextLevel={goToNextLevel}
+        onRestart={restartGame}
       />
     </div>
   );
